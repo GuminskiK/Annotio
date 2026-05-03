@@ -1,6 +1,6 @@
 import hashlib
 
-from backend.src.app.core.config import settings
+from src.app.core.config import settings
 
 SECRET_KEY = settings.SECRET_KEY
 

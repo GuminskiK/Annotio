@@ -1,18 +1,18 @@
 from fastapi import APIRouter, BackgroundTasks, Body, Depends, Form, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
-from backend.src.app.deps.users import current_admin_user, owner_or_admin
-from backend.src.app.core.rate_limiting import limiter
-from backend.src.app.modules.auth.models.Tokens import Token
-from backend.src.app.modules.auth.models.Users import NewPasswordModel, UserRead
-from backend.src.app.modules.auth.services.auth_service import (change_account_status, change_password,
+from src.app.deps.users import current_admin_user, owner_or_admin
+from src.app.core.rate_limiting import limiter
+from src.app.modules.auth.models.Tokens import Token
+from src.app.modules.auth.models.Users import NewPasswordModel, UserRead
+from src.app.modules.auth.services.auth_service import (change_account_status, change_password,
                                        change_superuser_status, delete_session,
                                        fetch_auth_sessions, login_token)
-from backend.src.app.modules.auth.services.auth_service import refresh_token as refresh_token_service
-from backend.src.app.modules.auth.services.auth_service import revoke_refresh_token as logout_service
-from backend.src.app.modules.auth.services.auth_service import send_change_password_mail
-from backend.src.app.deps.db import db_session
-from backend.src.app.deps.redis import redis_client
+from src.app.modules.auth.services.auth_service import refresh_token as refresh_token_service
+from src.app.modules.auth.services.auth_service import revoke_refresh_token as logout_service
+from src.app.modules.auth.services.auth_service import send_change_password_mail
+from src.app.deps.db import db_session
+from src.app.deps.redis import redis_client
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")

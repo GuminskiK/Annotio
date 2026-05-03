@@ -1,4 +1,4 @@
-from backend.src.app.main import app
+from src.app.main import app
 
 
 def test_endpoints(client):

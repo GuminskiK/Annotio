@@ -1,6 +1,6 @@
 import pytest
 
-from backend.src.app.core.auth.apikeys import (generate_api_key_for_user,
+from src.app.core.auth.apikeys import (generate_api_key_for_user,
                                    get_user_by_api_key, revoke_user_api_key)
 
 
@@ -19,7 +19,7 @@ async def test_api_key_for_user_flow(client, db_session):
 
     from sqlmodel import select
 
-    from backend.src.app.modules.auth.models.APIKeys import APIKey
+    from src.app.modules.auth.models.APIKeys import APIKey
     key_obj = (await db_session.exec(select(APIKey).where(APIKey.user_id == user.id))).first()
 
     await revoke_user_api_key(db_session, user.id, key_obj.id)

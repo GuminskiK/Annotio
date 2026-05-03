@@ -4,18 +4,18 @@ from fastapi import BackgroundTasks
 from sqlmodel import select
 from structlog.contextvars import bind_contextvars
 
-from backend.src.app.core.auth.jwt import create_token, get_password_hash
-from backend.src.app.core.auth.utils import get_blind_index
-from backend.src.app.core.config import settings
-from backend.src.app.core.exceptions import (EmailTakenException,
+from src.app.core.auth.jwt import create_token, get_password_hash
+from src.app.core.auth.utils import get_blind_index
+from src.app.core.config import settings
+from src.app.core.exceptions import (EmailTakenException,
                                             UsernameTakenException,
                                             UserNotFoundException)
-from backend.src.app.modules.auth.models.Tokens import TokenTypes
-from backend.src.app.modules.auth.models.Users import User, UserCreate, UserUpdate
-from backend.src.app.modules.auth.services.email_service import send_activation_email
-from backend.src.app.modules.auth.services.users import get_user_by_email, get_user_by_username
-from backend.src.app.deps.db import db_session
-from backend.src.app.core.logger.logger import get_logger
+from src.app.modules.auth.models.Tokens import TokenTypes
+from src.app.modules.auth.models.Users import User, UserCreate, UserUpdate
+from src.app.modules.auth.services.email_service import send_activation_email
+from src.app.modules.auth.services.users import get_user_by_email, get_user_by_username
+from src.app.deps.db import db_session
+from src.app.core.logger.logger import get_logger
 
 logger = get_logger(__name__)
 ACTIVATE_TOKEN_EXPIRE_DAYS = settings.ACTIVATE_TOKEN_EXPIRE_DAYS

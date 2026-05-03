@@ -4,8 +4,8 @@ from typing import Any, Tuple
 
 from sqlalchemy import text
 
-from backend.src.app.deps.db import db_session
-from backend.src.app.deps.redis import redis_client
+from src.app.deps.db import db_session
+from src.app.deps.redis import redis_client
 
 
 def check_disk(min_free_percent: float = 10.0) -> Tuple[bool, dict]:

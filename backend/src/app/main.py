@@ -6,15 +6,15 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 
-from backend.src.app.api.v1 import users
-from backend.src.app.core.health import check_db, check_disk, check_redis
-from backend.src.app.core.rate_limiting import limiter
-from backend.src.app.deps.db import db_session
-from backend.src.app.deps.redis import redis_client
-from backend.src.app.core.logger.logger import setup_logging
-from backend.src.app.core.logger.logging_middleware import StructlogMiddleware
-from backend.src.app.core.config import settings
-from backend.src.app.api.v1 import apikeys, auth, two_fa
+from src.app.api.v1 import users
+from src.app.core.health import check_db, check_disk, check_redis
+from src.app.core.rate_limiting import limiter
+from src.app.deps.db import db_session
+from src.app.deps.redis import redis_client
+from src.app.core.logger.logger import setup_logging
+from src.app.core.logger.logging_middleware import StructlogMiddleware
+from src.app.core.config import settings
+from src.app.api.v1 import apikeys, auth, two_fa
 # Initialize structural logging globally
 setup_logging(json_logs=False, log_level="INFO")  # SET json_logs=True for Sentry/Loki!
 
@@ -23,11 +23,11 @@ async def lifespan(app: FastAPI):
 
     from sqlmodel import SQLModel, select
 
-    from backend.src.app.core.auth.jwt import get_password_hash
-    from backend.src.app.core.auth.utils import get_blind_index
-    from backend.src.app.core.config import settings
-    from backend.src.app.modules.auth.models.Users import User
-    from backend.src.app.deps.db import AsyncSessionLocal, engine
+    from src.app.core.auth.jwt import get_password_hash
+    from src.app.core.auth.utils import get_blind_index
+    from src.app.core.config import settings
+    from src.app.modules.auth.models.Users import User
+    from src.app.deps.db import AsyncSessionLocal, engine
 
     # Utworzenie wszystkich tabel przez engine
     try:

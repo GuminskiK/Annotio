@@ -7,7 +7,7 @@ from typing import Any, Optional
 from jose import jwt
 from passlib.context import CryptContext
 
-from backend.src.app.core.config import settings
+from src.app.core.config import settings
 
 pwd_context = CryptContext(
     schemes=["argon2"],

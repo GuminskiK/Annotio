@@ -2,11 +2,11 @@ from typing import List
 
 from fastapi import APIRouter, BackgroundTasks
 
-from backend.src.app.deps.users import current_active_user, current_admin_user
-from backend.src.app.modules.auth.models.Users import UserCreate, UserRead, UserUpdate
-from backend.src.app.modules.auth.services.users_crud import (create_user, fetch_all_users, fetch_user,
+from src.app.deps.users import current_active_user, current_admin_user
+from src.app.modules.auth.models.Users import UserCreate, UserRead, UserUpdate
+from src.app.modules.auth.services.users_crud import (create_user, fetch_all_users, fetch_user,
                                      remove_user, update_user)
-from backend.src.app.deps.db import db_session
+from src.app.deps.db import db_session
 
 router = APIRouter(prefix="/users", tags=["users"])
 

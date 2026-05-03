@@ -4,13 +4,13 @@ import secrets
 
 from sqlmodel import select
 
-from backend.src.app.core.config import settings
-from backend.src.app.core.exceptions import (ApiKeyNotFoundException,
+from src.app.core.config import settings
+from src.app.core.exceptions import (ApiKeyNotFoundException,
                                             UserNotFoundException)
-from backend.src.app.modules.auth.models.APIKeys import APIKey
-from backend.src.app.modules.auth.models.Users import User
-from backend.src.app.deps.db import db_session
-from backend.src.app.core.logger.logger import get_logger
+from src.app.modules.auth.models.APIKeys import APIKey
+from src.app.modules.auth.models.Users import User
+from src.app.deps.db import db_session
+from src.app.core.logger.logger import get_logger
 
 logger = get_logger(__name__)
 

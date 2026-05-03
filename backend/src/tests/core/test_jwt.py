@@ -2,11 +2,11 @@ from datetime import timedelta
 
 import pytest
 
-from backend.src.app.core.auth.jwt import (_hash_jti, _now, create_token, decode_token,
+from src.app.core.auth.jwt import (_hash_jti, _now, create_token, decode_token,
                                is_refresh_valid, revoke_all_user_sessions,
                                revoke_refresh, store_refresh_token)
-from backend.src.app.core.config import settings
-from backend.src.app.modules.auth.models.Tokens import TokenTypes
+from src.app.core.config import settings
+from src.app.modules.auth.models.Tokens import TokenTypes
 
 APP_NAME = settings.APP_NAME
 ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES

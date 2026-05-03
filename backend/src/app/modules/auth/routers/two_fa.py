@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Body
 
-from backend.src.app.deps.users import current_active_user
-from backend.src.app.core.config import settings
-from backend.src.app.modules.auth.services.two_fa_service import (generate_setup_data,
+from src.app.deps.users import current_active_user
+from src.app.core.config import settings
+from src.app.modules.auth.services.two_fa_service import (generate_setup_data,
                                          verify_and_disable, verify_and_enable)
-from backend.src.app.deps.db import db_session
+from src.app.deps.db import db_session
 
 router = APIRouter(prefix="/2fa", tags=["2fa"])
 

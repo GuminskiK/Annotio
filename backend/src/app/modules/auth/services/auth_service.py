@@ -8,26 +8,26 @@ from fastapi.security import OAuth2PasswordRequestForm
 from passlib.context import CryptContext
 from sqlmodel import select
 
-from backend.src.app.deps.users import owner_or_admin
-from backend.src.app.core.auth.jwt import (create_token, decode_token, get_password_hash,
+from src.app.deps.users import owner_or_admin
+from src.app.core.auth.jwt import (create_token, decode_token, get_password_hash,
                                is_refresh_valid, revoke_all_user_sessions,
                                revoke_refresh, store_refresh_token,
                                verify_password)
-from backend.src.app.core.config import settings
-from backend.src.app.core.exceptions import (
+from src.app.core.config import settings
+from src.app.core.exceptions import (
     Invalid2FACodeException, InvalidCredentialsException,
     InvalidTokenException, RefreshTokenReuseException,
     RefreshTokenRevokeFailedException, RefreshTokenRevokeOrExpiredException,
     Required2FACodeException, SessionNotFoundException, UserNotFoundException,
     WrongTokenTypeException)
-from backend.src.app.modules.auth.models.Tokens import Token, TokenTypes
-from backend.src.app.modules.auth.models.Users import User
-from backend.src.app.modules.auth.services.email_service import send_password_reset_email
-from backend.src.app.modules.auth.services.users import (get_user_by_email, get_user_by_id,
+from src.app.modules.auth.models.Tokens import Token, TokenTypes
+from src.app.modules.auth.models.Users import User
+from src.app.modules.auth.services.email_service import send_password_reset_email
+from src.app.modules.auth.services.users import (get_user_by_email, get_user_by_id,
                                 get_user_by_username)
-from backend.src.app.deps.db import db_session
-from backend.src.app.deps.redis import redis_client
-from backend.src.app.core.logger.logger import get_logger
+from src.app.deps.db import db_session
+from src.app.deps.redis import redis_client
+from src.app.core.logger.logger import get_logger
 
 logger = get_logger(__name__)
 ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
@@ -143,7 +143,7 @@ async def revoke_refresh_token(redis: redis_client, refresh_token: str):
             return {"message": "No-op"}
         jti = payload.get("jti")
         if jti:
-            from backend.src.app.core.auth.jwt import revoke_refresh as jwt_revoke_refresh
+            from src.app.core.auth.jwt import revoke_refresh as jwt_revoke_refresh
             await jwt_revoke_refresh(redis, jti)
             logger.info("refresh_token_revoked", jti=jti, user_id=str(payload.get("id")))
     except Exception as e:

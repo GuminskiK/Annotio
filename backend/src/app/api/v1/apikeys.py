@@ -1,9 +1,9 @@
 from fastapi import APIRouter
 
-from backend.src.app.deps.users import current_user, owner_or_admin
-from backend.src.app.modules.auth.services.apikeys_service import (fetch_user_apikeys, revoke_apikey,
+from src.app.deps.users import current_user, owner_or_admin
+from src.app.modules.auth.services.apikeys_service import (fetch_user_apikeys, revoke_apikey,
                                           validate_and_create_apikey)
-from backend.src.app.deps.db import db_session
+from src.app.deps.db import db_session
 
 router = APIRouter(prefix="/apikeys", tags=["apikeys"])
 

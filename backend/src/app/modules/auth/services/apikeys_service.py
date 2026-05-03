@@ -1,14 +1,14 @@
 from sqlmodel import select
 from structlog.contextvars import bind_contextvars
 
-from backend.src.app.core.auth.apikeys import (generate_api_key_for_user,
+from src.app.core.auth.apikeys import (generate_api_key_for_user,
                                    revoke_user_api_key)
-from backend.src.app.core.exceptions import \
+from src.app.core.exceptions import \
     AdminForibiddenFromCreatingApiKeyException
-from backend.src.app.modules.auth.models.APIKeys import APIKey
-from backend.src.app.modules.auth.models.Users import User
-from backend.src.app.deps.db import db_session
-from backend.src.app.core.logger.logger import get_logger
+from src.app.modules.auth.models.APIKeys import APIKey
+from src.app.modules.auth.models.Users import User
+from src.app.deps.db import db_session
+from src.app.core.logger.logger import get_logger
 
 logger = get_logger(__name__)
 

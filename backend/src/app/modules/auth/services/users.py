@@ -2,9 +2,9 @@ from typing import Optional
 
 from sqlmodel import select
 
-from backend.src.app.core.auth.utils import get_blind_index
-from backend.src.app.modules.auth.models.Users import User
-from backend.src.app.deps.db import db_session
+from src.app.core.auth.utils import get_blind_index
+from src.app.modules.auth.models.Users import User
+from src.app.deps.db import db_session
 
 
 async def get_user_by_id(session: db_session, id: int) -> User | None:

@@ -5,14 +5,14 @@ import secrets
 import pyotp
 import qrcode
 
-from backend.src.app.core.config import settings
-from backend.src.app.core.exceptions import (Invalid2FACodeException,
+from src.app.core.config import settings
+from src.app.core.exceptions import (Invalid2FACodeException,
                                             TwoFaAlreadyEnabledException,
                                             TwoFaNotEnabledException,
                                             TwoFaNotInitiatedException)
-from backend.src.app.modules.auth.models.Users import User
-from backend.src.app.deps.db import db_session
-from backend.src.app.core.logger.logger import get_logger
+from src.app.modules.auth.models.Users import User
+from src.app.deps.db import db_session
+from src.app.core.logger.logger import get_logger
 
 logger = get_logger(__name__)
 

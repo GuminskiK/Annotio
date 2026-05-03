@@ -5,13 +5,13 @@ from fastapi.security import APIKeyHeader, OAuth2PasswordBearer
 from jose import JWTError, jwt
 from structlog.contextvars import bind_contextvars
 
-from backend.src.app.core.auth.apikeys import get_user_by_api_key
-from backend.src.app.core.config import settings
-from backend.src.app.core.exceptions import (AdminNeededException,
+from src.app.core.auth.apikeys import get_user_by_api_key
+from src.app.core.config import settings
+from src.app.core.exceptions import (AdminNeededException,
                                             AdminOrOwnerNeededException)
-from backend.src.app.modules.auth.models.Users import User
-from backend.src.app.modules.auth.services.users import get_user_by_username
-from backend.src.app.deps.db import db_session
+from src.app.modules.auth.models.Users import User
+from src.app.modules.auth.services.users import get_user_by_username
+from src.app.deps.db import db_session
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token", auto_error=False)
 api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)

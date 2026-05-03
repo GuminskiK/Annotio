@@ -5,12 +5,12 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlmodel import SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from backend.src.app.deps.users import get_current_admin_user
-from backend.src.app.core.rate_limiting import limiter
-from backend.src.app.main import app
-from backend.src.app.modules.auth.models.Users import User
-from backend.src.app.deps.db import get_session
-from backend.src.app.deps.redis import get_redis
+from src.app.deps.users import get_current_admin_user
+from src.app.core.rate_limiting import limiter
+from src.app.main import app
+from src.app.modules.auth.models.Users import User
+from src.app.deps.db import get_session
+from src.app.deps.redis import get_redis
 
 # Disable rate limiting for tests
 limiter.enabled = False

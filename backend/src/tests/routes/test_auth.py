@@ -3,8 +3,8 @@ from unittest.mock import patch
 
 import pyotp
 
-from backend.src.app.core.auth.jwt import create_token
-from backend.src.app.modules.auth.models.Tokens import TokenTypes
+from src.app.core.auth.jwt import create_token
+from src.app.modules.auth.models.Tokens import TokenTypes
 
 
 def test_login_success(client):
@@ -213,7 +213,7 @@ def test_get_sessions_and_logout_specific(client):
     sessions2 = sessions_resp2.json()
     assert not any(s["device"] == "TestDevice 2" for s in sessions2)
 
-@patch("app.services.email_service.fm.send_message")
+@patch("src.app.modules.auth.services.email_service.fm.send_message")
 def test_activate_account(mock_send_message, client):
     # 1. Create a User
     # W mocku blokujemy faktyczną próbę nawiązania po TCP z serwerem w testach
@@ -236,7 +236,7 @@ def test_activate_account(mock_send_message, client):
     assert activate_resp.status_code == 200
     assert activate_resp.json()["is_activated"] is True
 
-@patch("app.services.email_service.fm.send_message")
+@patch("src.app.modules.auth.services.email_service.fm.send_message")
 def test_change_password_flow(mock_send_message, client):
     # 1. Setup User
     user_resp = client.post(

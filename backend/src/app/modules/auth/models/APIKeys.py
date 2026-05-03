@@ -3,7 +3,7 @@ from typing import Optional
 
 from sqlmodel import Field, Relationship, SQLModel
 
-from backend.src.app.modules.auth.models.Users import User
+from src.app.modules.auth.models.Users import User
 
 
 class APIKey(SQLModel, table=True):
