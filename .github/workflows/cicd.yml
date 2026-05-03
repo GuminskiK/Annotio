@@ -60,8 +60,7 @@ jobs:
           APP_NAME: FastAPI-Base-Setup
           PYTHONPATH: backend
         run: |
-          cd backend
-          pytest -q
+          pytest backend -q
 
   
 #  build-and-push:
