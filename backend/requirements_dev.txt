@@ -1,0 +1,7 @@
+-r requirements.txt
+pytest
+pytest-asyncio
+aiosqlite
+ruff
+black
+isort

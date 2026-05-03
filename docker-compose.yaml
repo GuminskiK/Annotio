@@ -1,0 +1,97 @@
+services:
+  backend:
+    build: 
+      context: ./backend
+    volumes:
+      - ./backend:/app
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-user} -d ${POSTGRES_DB:-db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - redis_data:/data
+    networks:
+      - app-network
+
+  mailpit:
+    image: axllent/mailpit
+    container_name: mailpit
+    restart: unless-stopped
+    ports:
+      - "8025:8025"
+    networks:
+      - app-network
+  
+  init-certs:
+    image: alpine/openssl
+    container_name: init_certs
+    entrypoint: /bin/sh
+    volumes:
+      - ./nginx/certs:/certs
+    command: >
+      -c "if [ ! -f /certs/server.crt ]; then
+              echo 'Generating self-signed certificate...';
+              openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /certs/server.key -out /certs/server.crt -subj '/CN=localhost';
+              chmod 644 /certs/server.key /certs/server.crt;
+            else
+              echo 'Certificate already exists.';
+            fi"
+
+  nginx:
+    image: nginx:alpine
+    container_name: creatorhub_nginx
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+      - frontend_static:/usr/share/nginx/html:ro
+    depends_on:
+      backend:
+        condition: service_started
+      init-certs:
+        condition: service_completed_successfully
+    networks:
+      - app-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  frontend_static:
+
+networks:
+  app-network:
+    driver: bridge
