@@ -1,7 +1,8 @@
 from typing import TYPE_CHECKING, List, Optional
-
+from enum import Enum
 from pydantic import EmailStr, field_validator
 from sqlmodel import JSON, Column, Field, Relationship, SQLModel
+import uuid
 
 if TYPE_CHECKING:
     from .APIKeys import APIKey
@@ -23,15 +24,22 @@ def validate_password_strength(v: str) -> str:
         raise ValueError("Hasło musi posiadać przynajmniej jeden znak specjalny")
     return v
 
+class Role (Enum):
+    ADMIN = "admin"
+    CLIENT = "client"
+    WORKER = "worker"
+    AUDITOR = "auditor"
+
 class UserBase(SQLModel):
     username: str = Field(index=True, unique=True, min_length=3, max_length=40, regex=USERNAME_PATTERN)
     email: EmailStr = Field(unique=True)
 
 class User(UserBase, table=True):
-    id: int | None = Field(default= None, primary_key=True)
-    is_superuser: bool = Field(default = False)
+    id: uuid.UUID | None = Field(default_factory= uuid.uuid4, primary_key=True)
+    role: Role = Field(default = Role.WORKER)
     is_activated: bool = Field(default = False)
-    
+    is_blocked: bool = Field(default=False)
+
     hashed_password: str = Field()
     email_blind_index: str
 
@@ -40,6 +48,11 @@ class User(UserBase, table=True):
     backup_codes: list[str] | None = Field(default=None, sa_column=Column(JSON))
     
     api_keys: List["APIKey"] = Relationship(back_populates="owner")
+    profile: Optional["UserProfile"] = Relationship(back_populates="user", sa_relationship_kwargs={"uselist": False})
+    consents: List["UserConsent"] = Relationship(back_populates="user")
+    wallet: Optional["Wallet"] = Relationship(back_populates="user", sa_relationship_kwargs={"uselist": False})
+    campaigns: List["Campaign"] = Relationship(back_populates="client")
+    task_assignments: List["TaskAssignment"] = Relationship(back_populates="worker")
 
 class UserCreate(UserBase):
     plain_password: str
@@ -50,14 +63,15 @@ class UserCreate(UserBase):
         return validate_password_strength(v)
 
 class UserRead(UserBase):
-    id: int
-    is_superuser: bool
+    id: uuid.UUID
+    role: Role
     is_activated: bool
     is_totp_enabled: bool
 
 class UserUpdate(SQLModel):
     username: Optional[str] = Field(default=None, min_length=3, max_length=40, regex=USERNAME_PATTERN)
     plain_password: Optional[str] = None
+    is_blocked: Optional[bool] = None
 
     @field_validator("plain_password")
     @classmethod
