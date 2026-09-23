@@ -6,6 +6,7 @@ import uuid
 
 if TYPE_CHECKING:
     from .APIKeys import APIKey
+    from .BackupCodes import BackupCode
 
 USERNAME_PATTERN = r"^[a-zA-Z0-9_\-]+$"
 
@@ -35,7 +36,7 @@ class UserBase(SQLModel):
     email: EmailStr = Field(unique=True)
 
 class User(UserBase, table=True):
-    id: uuid.UUID | None = Field(default_factory= uuid.uuid4, primary_key=True)
+    id: uuid.UUID = Field(default_factory= uuid.uuid4, primary_key=True)
     role: Role = Field(default = Role.WORKER)
     is_activated: bool = Field(default = False)
     is_blocked: bool = Field(default=False)
@@ -45,8 +46,8 @@ class User(UserBase, table=True):
 
     totp_secret: str | None = Field(default=None)
     is_totp_enabled: bool = Field(default=False)
-    backup_codes: list[str] | None = Field(default=None, sa_column=Column(JSON))
-    
+
+    backup_codes: list["BackupCode"] = Relationship(back_populates="user", sa_relationship_kwargs={"cascade": "all, delete-orphan"})
     api_keys: list["APIKey"] = Relationship(back_populates="owner")
     # profile: Optional["UserProfile"] = Relationship(back_populates="user", sa_relationship_kwargs={"uselist": False})
     # consents: List["UserConsent"] = Relationship(back_populates="user")

@@ -10,12 +10,15 @@ from app.core.exceptions import (
     UserNotFoundException,
 )
 from sqlmodel.ext.asyncio.session import AsyncSession
+from models.BackupCodes import BackupCode
+from utils.auth_utils import get_password_hash, verify_password
 from services.session_service import getSessionsByUserId, updateSession
 from core.logger import get_logger
 from deps.users import CurrentUserContext
 from utils.users_utils import get_user_by_id
 import redis.asyncio as redis
-
+import secrets
+import string
 logger = get_logger(__name__)
 
 
@@ -65,6 +68,17 @@ async def verify_and_enable(user_context: CurrentUserContext, redis: redis.Redis
     totp = pyotp.TOTP(user.totp_secret)
     if not totp.verify(code):
         raise Invalid2FACodeException()
+
+    for old_backup_code in user.backup_codes:
+        await session.delete(old_backup_code)
+
+    codes = []
+
+    for i in range(10):
+        code = ''.join(secrets.choice(string.ascii_uppercase + string.digits) for _ in range(8))
+        codes.append(code)
+        hashed = get_password_hash(code)
+        session.add( BackupCode(user_id=user.id, code_hash=hashed) )
 
     user.is_totp_enabled = True
     session.add(user)

@@ -123,9 +123,6 @@ async def update_user(
     await session.commit()
     await session.refresh(user)
 
-    if not user.id:
-        logger.warning("user_update_failed_not_found", user_id=user_id)
-        raise UserNotFoundException()
     session_ids = await getSessionsByUserId(redis, user.id)
     if not user_update.plain_password:
         for id in session_ids:
@@ -276,8 +273,6 @@ async def send_change_password_mail(session: db_session, email: str, background_
     if not user:
         raise UserNotFoundException()
 
-    if not user.id:
-        raise UserNotFoundException()
     token = create_token(
         user.id,
         user.username,

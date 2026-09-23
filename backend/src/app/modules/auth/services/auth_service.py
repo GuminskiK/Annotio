@@ -94,8 +94,18 @@ async def login_mfa(
     
     totp = pyotp.TOTP(user.totp_secret)
     if not totp.verify(mfa_code):
-        logger.warning("invalid_2fa_code_attempt", username=user.username)
-        raise Invalid2FACodeException()
+
+        if len(mfa_code) == 6:
+            logger.warning("invalid_2fa_code_attempt", username=user.username)
+            raise Invalid2FACodeException()
+        
+        elif len(mfa_code) == 8:
+            for code in user.backup_codes:
+                if verify_password(mfa_code, code.code_hash):
+                    user.backup_codes.remove(code)
+                    await session.commit()
+                    await createSession(request, response, user, redis)
+                    logger.info("user_logged_in_with_backup_code", user_id=str(user.id), uuid=str(user.id))
 
     await createSession(request, response, user, redis)
 

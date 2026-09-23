@@ -26,9 +26,6 @@ async def reset_password(args):
 
             if not user:
                 raise UserNotFoundException()
-
-            if not user.id:
-                raise UserNotFoundException()
             
             context = CurrentUserContext(
                 session_id="reset-password-session",
