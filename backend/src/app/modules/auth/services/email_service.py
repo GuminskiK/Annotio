@@ -1,14 +1,25 @@
 from fastapi_mail import ConnectionConfig, FastMail, MessageSchema, MessageType
-from pydantic import EmailStr
+from pydantic import EmailStr, SecretStr, NameEmail
 
 from src.app.core.config import settings
-from src.app.core.logger.logger import get_logger
+from src.app.core.logger import get_logger
 
 logger = get_logger(__name__)
 
+def plain_value(value):
+    if isinstance(value, SecretStr):
+        return value.get_secret_value()
+    return value
+
+def recipient(email: EmailStr) -> NameEmail:
+    return NameEmail(
+        name=str(email),
+        email=str(email),
+    )
+
 conf = ConnectionConfig(
-    MAIL_USERNAME=settings.MAIL_USERNAME or "test",
-    MAIL_PASSWORD=settings.MAIL_PASSWORD or "test",
+    MAIL_USERNAME=plain_value(settings.MAIL_USERNAME) or "test",
+    MAIL_PASSWORD=SecretStr(plain_value(settings.MAIL_PASSWORD) or "test"),
     MAIL_FROM=settings.MAIL_FROM,
     MAIL_PORT=settings.MAIL_PORT,
     MAIL_SERVER=settings.MAIL_SERVER,
@@ -33,7 +44,7 @@ async def send_activation_email(email_to: EmailStr, token: str):
 
     message = MessageSchema(
         subject="Aktywuj swoje konto w aplikacji",
-        recipients=[email_to],
+        recipients=[recipient(email_to)],
         body=html_body,
         subtype=MessageType.html
     )
@@ -60,7 +71,7 @@ async def send_password_reset_email(email_to: EmailStr, token: str):
 
     message = MessageSchema(
         subject="Reset hasła",
-        recipients=[email_to],
+        recipients=[recipient(email_to)],
         body=html_body,
         subtype=MessageType.html
     )

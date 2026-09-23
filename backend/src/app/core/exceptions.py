@@ -52,6 +52,9 @@ class AdminOrOwnerNeededException(ForbiddenException):
     def __init__(self, detail: str = "Not authorized to perform this action"):
         super().__init__(detail="Only admin or owner can perform this action")
 
+class CurrentUserNeededException(ForbiddenException):
+    def __init__(self, detail: str = "Not authorized to perform this action"):
+        super().__init__(detail="Only admin or owner can perform this action")
 
 #########################
 
@@ -66,6 +69,10 @@ class TwoFaNotInitiatedException(BadRequestException):
 class TwoFaNotEnabledException(BadRequestException):
     def __init__(self, detail: str = "Bad Request"):
         super().__init__(detail="2FA is not enabled")
+
+class TwoFaSecretMissingException(BadRequestException):
+    def __init__(self, detail: str = "Bad Request"):
+        super().__init__(detail="2FA secret is missing")
 
 class InvalidTokenException(BadRequestException):
     def __init__(self, detail: str = "Bad Request"):
@@ -83,6 +90,21 @@ class EmailTakenException(BadRequestException):
     def __init__(self, detail: str = "Bad Request"):
         super().__init__(detail="Email taken")
 
+class WrongFileTypeException(BadRequestException):
+    def __init__(self, detail: str = "Bad Request"):
+        super().__init__(detail="Wrong file type")
+
+class NoFileTypeException(BadRequestException):
+    def __init__(self, detail: str = "Bad Request"):
+        super().__init__(detail="File type is missing")
+
+class NoFileNameException(BadRequestException):
+    def __init__(self, detail: str = "Bad Request"):
+        super().__init__(detail="File name is missing")
+
+class NoFileException(BadRequestException):
+    def __init__(self, detail: str = "Bad Request"):
+        super().__init__(detail="No file uploaded")
 
 ####
 
@@ -109,6 +131,10 @@ class RefreshTokenRevokeOrExpiredException(UnauthorizedException):
 class RefreshTokenRevokeFailedException(UnauthorizedException):
     def __init__(self, detail: str = "Unauthorized"):
         super().__init__(detail="Refresh token revoke failed")
+
+class NoSessionAndNoAPIKey(UnauthorizedException):
+    def __init__(self, detail: str = "Unauthorized"):
+        super().__init__(detail="No valid session or API keySS")
 
 #####
 class FailedToSentActivationEmailException(InternalServerErrorException):

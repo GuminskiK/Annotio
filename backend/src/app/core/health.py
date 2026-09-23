@@ -1,31 +1,43 @@
+import asyncio
 import os
 import shutil
-from typing import Any, Tuple
+from typing import Any
 
 from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.app.deps.db import db_session
-from src.app.deps.redis import redis_client
+from src.app.deps.dbs import db_session, redis_client
 
 
-def check_disk(min_free_percent: float = 10.0) -> Tuple[bool, dict]:
-    """Return (ok, info) for disk usage check."""
+def check_disk(min_free_percent: float = 10.0) -> tuple[bool, dict]:
     total, used, free = shutil.disk_usage(os.path.abspath(os.sep))
     free_pct = round(free / total * 100, 2)
-    ok = free_pct >= min_free_percent
-    return ok, {"free_percent": free_pct}
 
-async def check_db(session: db_session, timeout: int = 3) -> Tuple[bool, Any]:
+    return free_pct >= min_free_percent, {
+        "free_percent": free_pct,
+    }
+
+
+async def check_db(
+    session: AsyncSession,
+    timeout: int = 3,
+) -> tuple[bool, Any]:
     try:
-        await session.exec(text("SELECT 1"))
+        await asyncio.wait_for(
+            session.execute(text("SELECT 1")),
+            timeout=timeout,
+        )
         return True, None
-    except Exception as e:
-        return False, str(e)
+    except Exception as exc:
+        return False, str(exc)
 
-async def check_redis(session: redis_client, timeout: int = 3) -> Tuple[bool, Any]:
+
+async def check_redis(
+    session: redis_client,
+    timeout: int = 3,
+) -> tuple[bool, Any]:
     try:
-        if await session.ping():
-            return True, None
-        return False, "ping failed"
-    except Exception as e:
-        return False, str(e)
+        await asyncio.wait_for(session.ping(), timeout=timeout)
+        return True, None
+    except Exception as exc:
+        return False, str(exc)

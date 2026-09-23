@@ -2,61 +2,66 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from slowapi import _rate_limit_exceeded_handler
+from app.core.rate_limiting import limiter, custom_rate_limit_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 
-from src.app.api.v1 import users
 from src.app.core.health import check_db, check_disk, check_redis
 from src.app.core.rate_limiting import limiter
-from src.app.deps.db import db_session
-from src.app.deps.redis import redis_client
-from src.app.core.logger.logger import setup_logging
-from src.app.core.logger.logging_middleware import StructlogMiddleware
+from src.app.deps.dbs import db_session, redis_client, db_deps
+from src.app.core.logger import setup_logging
+from src.app.core.logging_middleware import StructlogMiddleware
 from src.app.core.config import settings
-from src.app.api.v1 import apikeys, auth, two_fa
-# Initialize structural logging globally
+
+from src.app.modules.auth.routers import users, auth, apikeys, two_fa, sessions
+
 setup_logging(json_logs=False, log_level="INFO")  # SET json_logs=True for Sentry/Loki!
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    from src.app.modules.auth.utils.auth_utils import get_password_hash
+    from src.app.modules.auth.utils.users_utils import get_blind_index
+    from sqlalchemy.orm import selectinload
+    from sqlmodel import select
+    from src.app.modules.auth.models.Users import User, Role
+    import json
 
-    from sqlmodel import SQLModel, select
+    async with db_deps.AsyncSessionLocal() as session:
+        query = select(User).options(selectinload(User.api_keys)) # type: ignore[arg-type]
+        result = await session.exec(query)
+        users_with_keys = result.all()
 
-    from src.app.core.auth.jwt import get_password_hash
-    from src.app.core.auth.utils import get_blind_index
-    from src.app.core.config import settings
-    from src.app.modules.auth.models.Users import User
-    from src.app.deps.db import AsyncSessionLocal, engine
-
-    # Utworzenie wszystkich tabel przez engine
-    try:
-        async with engine.begin() as conn:
-            await conn.run_sync(SQLModel.metadata.create_all)
-
-        async with AsyncSessionLocal() as session:
-            # Check if superuser exists
-            query = select(User).where(User.username == settings.FIRST_SUPERUSER)
-            result = await session.exec(query)
-            user = result.first()
-
-            if not user:
-                print("Creating first superuser...")
-                superuser = User(
-                    username=settings.FIRST_SUPERUSER,
-                    email=f"{settings.FIRST_SUPERUSER}@example.com",
-                    email_blind_index=get_blind_index(f"{settings.FIRST_SUPERUSER}@example.com"),
-                    hashed_password=get_password_hash(settings.FIRST_SUPERUSER_PASSWORD),
-                    is_superuser=True,
-                    is_2fa_enabled=False
+        for user in users_with_keys:
+            for api_key in user.api_keys or []:
+                await db_deps.get_redis().set(
+                    f"apikey:{api_key.hashed_key}",
+                    json.dumps({
+                        "id": str(api_key.user_id),
+                        "username": user.username,
+                        "role": user.role,
+                    }),
                 )
-                session.add(superuser)
-                await session.commit()
-                print(f"Superuser '{settings.FIRST_SUPERUSER}' created.")       
-            else:
-                print("Superuser already exists.")
-    except Exception as e:
-        print(f"Skipping DB init / superuser creation, DB likely not initialized or unreachable (e.g. Test Mode): {e}")
+
+        query_users = select(User)
+        result_users = await session.exec(query_users)
+
+        if not result_users.first():
+            admin_email = f"{settings.ADMIN_USERNAME}@example.com"
+
+            admin_user = User(
+                username=settings.ADMIN_USERNAME,
+                email=admin_email,
+
+                role=Role.ADMIN,
+                is_activated=True,
+                hashed_password=get_password_hash(settings.ADMIN_PASSWORD),
+                email_blind_index=get_blind_index(admin_email),
+                is_totp_enabled=False,
+            )
+
+            session.add(admin_user)
+            await session.commit()
+
     yield
 
 app = FastAPI(
@@ -65,7 +70,7 @@ app = FastAPI(
     root_path="/api")
 
 app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_exception_handler(RateLimitExceeded, custom_rate_limit_handler)
 app.add_middleware(SlowAPIMiddleware)
 
 app.add_middleware(StructlogMiddleware)
@@ -74,6 +79,7 @@ app.include_router(users.router)
 app.include_router(auth.router)
 app.include_router(apikeys.router)
 app.include_router(two_fa.router)
+app.include_router(sessions.router)
 
 origins = [
     "http://localhost.tiangolo.com",

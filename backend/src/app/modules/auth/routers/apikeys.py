@@ -1,23 +1,32 @@
-from fastapi import APIRouter
-
-from src.app.deps.users import current_user, owner_or_admin
-from src.app.modules.auth.services.apikeys_service import (fetch_user_apikeys, revoke_apikey,
-                                          validate_and_create_apikey)
-from src.app.deps.db import db_session
+from fastapi import APIRouter, Body
+from uuid import UUID
+from src.app.deps.users import CurrentUser, AdminUser
+from services.apikeys_service import (
+    fetch_user_apikeys,
+    fetch_user_apikeys_by_id,
+    generate_api_key_for_user,
+    revoke_user_api_key
+)
+from app.deps.dbs import db_session, redis_client
 
 router = APIRouter(prefix="/apikeys", tags=["apikeys"])
 
 @router.post("", status_code=201)
-async def post_apikey(user: current_user, session: db_session, name: str):
+async def post_apikey(user: CurrentUser, session: db_session, redis: redis_client, name: str = Body(..., embed=True)):
 
-    return await validate_and_create_apikey(user, session, name)
+    return await generate_api_key_for_user(session, user.user_id, name, redis)
+
 
 @router.delete("/{key_id}")
-async def delete_api_key(key_id: int, user: owner_or_admin, session: db_session):
+async def delete_api_key(key_id: UUID, user: CurrentUser, session: db_session, redis: redis_client):
 
-    return await revoke_apikey(key_id, user, session)
+    return await revoke_user_api_key(session, user.user_id, key_id, redis)
 
-@router.get("")
-async def get_my_keys(user: owner_or_admin, session: db_session):
-    
+
+@router.get("/me")
+async def get_my_keys(user: CurrentUser, session: db_session):
     return await fetch_user_apikeys(user, session)
+
+@router.get("/{user_id}")
+async def get_user_keys(user_id: UUID, admin: AdminUser, session: db_session):
+    return await fetch_user_apikeys_by_id(user_id, session)

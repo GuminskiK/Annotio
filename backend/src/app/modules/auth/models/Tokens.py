@@ -1,6 +1,4 @@
 from enum import Enum
-
-from pydantic import ConfigDict
 from sqlmodel import SQLModel
 
 
@@ -14,5 +12,3 @@ class Token(SQLModel):
     access_token: str
     token_type: str
     refresh_token: str | None = None
-
-    model_config = ConfigDict(from_attributes=True)
