@@ -1,5 +1,6 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Literal
+from decimal import Decimal
 
 class Settings(BaseSettings):
     SECRET_KEY: str = "your-secret-key"
@@ -34,6 +35,13 @@ class Settings(BaseSettings):
     ACTIVATE_TOKEN_EXPIRE_DAYS: int = 7
     PASSWORD_RESET_TOKEN_EXPIRE_MINUTES: int = 60
 
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", case_sensitive=True)
+    MAX_WITHDRAWAL_AMOUNT_WITHOUT_APPROVAL: Decimal = Decimal("200.00")
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=True,
+        extra="ignore",
+    )
 
 settings = Settings()

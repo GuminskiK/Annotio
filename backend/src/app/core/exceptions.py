@@ -38,6 +38,14 @@ class UserNotFoundException(ResourceNotFoundException):
 class ApiKeyNotFoundException(ResourceNotFoundException):
     def __init__(self, resource_name: str = "Apikey"):
         super().__init__(resource_name=resource_name)
+
+class TransactionNotFoundException(ResourceNotFoundException):
+    def __init__(self, resource_name: str = "Transaction"):
+        super().__init__(resource_name=resource_name)
+
+class WalletNotFoundException(ResourceNotFoundException):
+    def __init__(self, resource_name: str = "Wallet"):
+        super().__init__(resource_name=resource_name)
 ##########################
 
 class AdminForibiddenFromCreatingApiKeyException(ForbiddenException):

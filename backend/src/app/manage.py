@@ -31,7 +31,7 @@ async def reset_password(args):
                 session_id="reset-password-session",
                 user_id=user.id,
                 username=args.username,
-                is_superuser=False,
+                role=user.role,
                 is_totp_enabled=False
             )
 

@@ -3,11 +3,9 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlmodel.ext.asyncio.session import AsyncSession
 from redis.asyncio import from_url, Redis
 
-from app.core.config import settings
-from backend.src.app.deps.dbs import DBDependency
+from src.app.core.config import settings
 from typing import Annotated
 from fastapi import Depends
-from sqlmodel.ext.asyncio.session import AsyncSession
 import redis.asyncio as redis
 
 class DBDependency:

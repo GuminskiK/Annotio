@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.core.rate_limiting import limiter, custom_rate_limit_handler
+from src.app.core.rate_limiting import limiter, custom_rate_limit_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 
@@ -14,6 +14,8 @@ from src.app.core.logging_middleware import StructlogMiddleware
 from src.app.core.config import settings
 
 from src.app.modules.auth.routers import users, auth, apikeys, two_fa, sessions
+from src.app.modules.finance.routers import payment_operations
+from src.app.modules.finance.routers import transactions, wallet
 
 setup_logging(json_logs=False, log_level="INFO")  # SET json_logs=True for Sentry/Loki!
 
@@ -24,7 +26,15 @@ async def lifespan(app: FastAPI):
     from sqlalchemy.orm import selectinload
     from sqlmodel import select
     from src.app.modules.auth.models.Users import User, Role
+    from sqlmodel import SQLModel
+    from src.app.modules.finance.models.IdempotencyKey import IdempotencyKey
+    from src.app.modules.finance.models.PaymentOperation import PaymentOperation
+    from src.app.modules.finance.models.Transaction import Transaction
+    from src.app.modules.finance.models.Wallet import Wallet
     import json
+
+    async with db_deps.engine.begin() as connection:
+        await connection.run_sync(SQLModel.metadata.create_all)
 
     async with db_deps.AsyncSessionLocal() as session:
         query = select(User).options(selectinload(User.api_keys)) # type: ignore[arg-type]
@@ -80,6 +90,9 @@ app.include_router(auth.router)
 app.include_router(apikeys.router)
 app.include_router(two_fa.router)
 app.include_router(sessions.router)
+app.include_router(payment_operations.router)
+app.include_router(transactions.router)
+app.include_router(wallet.router)
 
 origins = [
     "http://localhost.tiangolo.com",

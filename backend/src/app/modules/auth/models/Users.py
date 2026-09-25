@@ -7,6 +7,7 @@ import uuid
 if TYPE_CHECKING:
     from .APIKeys import APIKey
     from .BackupCodes import BackupCode
+    from app.modules.finance.models.Wallet import Wallet
 
 USERNAME_PATTERN = r"^[a-zA-Z0-9_\-]+$"
 
@@ -51,7 +52,7 @@ class User(UserBase, table=True):
     api_keys: list["APIKey"] = Relationship(back_populates="owner")
     # profile: Optional["UserProfile"] = Relationship(back_populates="user", sa_relationship_kwargs={"uselist": False})
     # consents: List["UserConsent"] = Relationship(back_populates="user")
-    # wallet: Optional["Wallet"] = Relationship(back_populates="user", sa_relationship_kwargs={"uselist": False})
+    wallet: Optional["Wallet"] = Relationship(back_populates="user", sa_relationship_kwargs={"uselist": False})
     # campaigns: List["Campaign"] = Relationship(back_populates="client")
     # task_assignments: List["TaskAssignment"] = Relationship(back_populates="worker")
 

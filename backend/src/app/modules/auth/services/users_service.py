@@ -2,6 +2,7 @@ import shutil
 from pathlib import Path as FilePath
 from fastapi import BackgroundTasks, File, UploadFile
 from sqlmodel import select
+from backend.src.app.modules.finance.models.Wallet import Wallet
 from utils.auth_utils import get_password_hash
 from app.core.exceptions import (
     EmailTakenException,
@@ -53,10 +54,14 @@ async def create_user(
     db_user = User(
         **user_data, hashed_password=hashed, email_blind_index=email_blind_index
     )
+
+    db_user.wallet = Wallet(user_id=db_user.id)
+
     session.add(db_user)
     await session.commit()
     await session.refresh(db_user)
-
+    await session.refresh(db_user.wallet)
+    
     logger.info("user_created_succesfully", user_id=db_user.id)
 
     if not db_user.id:

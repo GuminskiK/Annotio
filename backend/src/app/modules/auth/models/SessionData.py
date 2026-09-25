@@ -1,6 +1,7 @@
 from datetime import datetime
 from pydantic import BaseModel
 from uuid import UUID
+from app.modules.auth.models.Users import Role
 
 class SessionData(BaseModel):
     session_id: str
@@ -10,7 +11,7 @@ class SessionData(BaseModel):
 
     user_id: UUID
     username: str
-    is_superuser: bool
+    role: Role
     is_totp_enabled: bool = False
     # is_banned: bool = False
 
