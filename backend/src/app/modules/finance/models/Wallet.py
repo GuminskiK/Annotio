@@ -1,7 +1,8 @@
 import uuid
-from typing import TYPE_CHECKING, List
 from decimal import Decimal
-from sqlmodel import SQLModel, Field, Relationship
+from typing import TYPE_CHECKING
+
+from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
     from ...auth.models.Users import User
@@ -14,7 +15,7 @@ class WalletBase(SQLModel):
 class Wallet(WalletBase, table=True):
     user_id: uuid.UUID = Field(primary_key=True, foreign_key="user.id")
     user: "User" = Relationship(back_populates="wallet")
-    transactions: List["Transaction"] = Relationship(back_populates="wallet")
+    transactions: list["Transaction"] = Relationship(back_populates="wallet")
 
 
 class WalletCreate(WalletBase):

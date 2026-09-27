@@ -1,6 +1,7 @@
 import uuid
 from enum import Enum
-from sqlmodel import SQLModel, Field
+
+from sqlmodel import Field, SQLModel
 
 
 class DisputeStatus(str, Enum):

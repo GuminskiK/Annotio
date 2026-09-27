@@ -1,8 +1,9 @@
-from sqlmodel import SQLModel, Field, Relationship
-from typing import TYPE_CHECKING, Optional
+import uuid
 from datetime import datetime, timezone
 from enum import Enum
-import uuid
+from typing import TYPE_CHECKING, Optional
+
+from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
     from ...auth.models.Users import User

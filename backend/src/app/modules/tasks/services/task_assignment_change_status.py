@@ -1,8 +1,12 @@
-from sqlmodel.ext.asyncio.session import AsyncSession
-from backend.src.app.modules.tasks.models.TaskAssignments import TaskAssignment, TaskAssignmentStatus, TaskAssignmentCreate, TaskAssignmentUpdate
 from uuid import UUID
 
 from backend.src.app.modules.tasks.services.task_assignment_service import change_status
+from sqlmodel.ext.asyncio.session import AsyncSession
+from src.app.modules.tasks.models.TaskAssignments import (
+    TaskAssignment,
+    TaskAssignmentStatus,
+)
+
 
 async def accept_task_assignment(
     session: AsyncSession,

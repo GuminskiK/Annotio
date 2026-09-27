@@ -1,12 +1,13 @@
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
+from typing import Annotated
+
+import redis.asyncio as redis
+from fastapi import Depends
+from redis.asyncio import Redis, from_url
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlmodel.ext.asyncio.session import AsyncSession
-from redis.asyncio import from_url, Redis
-
 from src.app.core.config import settings
-from typing import Annotated
-from fastapi import Depends
-import redis.asyncio as redis
+
 
 class DBDependency:
     def __init__(self, database_url, redis_url):

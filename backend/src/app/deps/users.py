@@ -1,25 +1,20 @@
 import hashlib
 import json
-from typing import Optional
-from fastapi.security import APIKeyHeader
-from fastapi import Depends, HTTPException, status, Request, Response
-from core.exceptions import (
-    AdminNeededException, CurrentUserNeededException, NoSessionAndNoAPIKey
-)
-from app.modules.auth.models.SessionData import SessionData
-from app.modules.auth.models.CurrentUserContext import CurrentUserContext
-import redis.asyncio as redis
-from sqlmodel.ext.asyncio.session import AsyncSession
-from uuid import UUID
-
-
-from backend.src.app.deps.users import AuthDependency, CurrentUserContext
-from app.core.config import settings
-from dbs import redis_pure, db_deps
-from src.app.modules.auth.models.Users import User
-from fastapi import Depends
 from typing import Annotated
-from backend.src.app.deps.users import CurrentUserContext
+
+import redis.asyncio as redis
+from dbs import db_deps, redis_pure
+from fastapi import Depends, HTTPException, Request, Response, status
+from fastapi.security import APIKeyHeader
+from sqlmodel.ext.asyncio.session import AsyncSession
+from src.app.core.config import settings
+from src.app.core.exceptions import (
+    AdminNeededException,
+    NoSessionAndNoAPIKey,
+)
+from src.app.modules.auth.models.CurrentUserContext import CurrentUserContext
+from src.app.modules.auth.models.SessionData import SessionData
+from src.app.modules.auth.models.Users import Role
 
 api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
 
@@ -36,7 +31,7 @@ class AuthDependency:
         self, 
         request: Request, 
         response: Response,
-        api_key: Optional[str] = Depends(api_key_header)
+        api_key: str | None = Depends(api_key_header)
     ) -> CurrentUserContext:
     
         session_id = request.cookies.get(self.session_cookie_name)
@@ -65,7 +60,7 @@ class AuthDependency:
 
                     user_id=session_data.user_id,
                     username=session_data.username,
-                    is_superuser=session_data.is_superuser,
+                    role=session_data.role,
                     is_totp_enabled=session_data.is_totp_enabled,
 
                     avatar_url=session_data.avatar_url
@@ -83,7 +78,7 @@ class AuthDependency:
 
                     user_id=key_data["id"],
                     username=key_data["username"],
-                    is_superuser=key_data["is_superuser"],
+                    role=key_data["role"],
                     is_totp_enabled=key_data["is_totp_enabled"],
 
                     avatar_url=key_data["avatar_url"]
@@ -95,7 +90,7 @@ class AuthDependency:
         async def _get_current_admin_user(
             current_user: CurrentUserContext = Depends(self.get_current_session)
         ) -> CurrentUserContext:
-            if not current_user.is_superuser:
+            if not current_user.role == Role.ADMIN:
                 raise AdminNeededException()
             return current_user
         return _get_current_admin_user

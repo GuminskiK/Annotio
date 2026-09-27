@@ -1,22 +1,20 @@
-from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter
-from src.app.modules.auth.models.Users import Role
 from src.app.deps.dbs import db_session
-from src.app.deps.users import CurrentUser, AdminUser
+from src.app.deps.users import AdminUser, CurrentUser
+from src.app.modules.auth.models.Users import Role
 from src.app.modules.finance.models.Transaction import TransactionRead
 from src.app.modules.finance.services.transaction_crud import (
     fetch_all_transactions_admin,
-    fetch_transaction_by_id_admin,
     fetch_transaction_by_id,
-    fetch_user_transactions
-
+    fetch_transaction_by_id_admin,
+    fetch_user_transactions,
 )
 
 router = APIRouter(prefix="/transactions", tags=["transactions"])
 
-@router.get("", response_model=List[TransactionRead])
+@router.get("", response_model=list[TransactionRead])
 async def get_transactions(session: db_session, user: CurrentUser, admin: AdminUser):
 
     return await fetch_all_transactions_admin(session)
@@ -30,7 +28,7 @@ async def get_transaction(session: db_session, user: CurrentUser, transaction_id
 
     return await fetch_transaction_by_id(session, transaction_id, user.user_id)
 
-@router.get("/user/{user_id}", response_model=List[TransactionRead])
+@router.get("/user/{user_id}", response_model=list[TransactionRead])
 async def get_transaction_user_transactions(session: db_session, user: CurrentUser, user_id: UUID):
 
     if user.role != Role.ADMIN:

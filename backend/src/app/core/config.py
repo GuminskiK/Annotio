@@ -1,6 +1,8 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing import Literal
 from decimal import Decimal
+from typing import Literal
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
 
 class Settings(BaseSettings):
     SECRET_KEY: str = "your-secret-key"
@@ -10,8 +12,8 @@ class Settings(BaseSettings):
 
     # Session settings
     SESSION_SECRET_KEY: str = "your-super-strategic-secret-key-change-this"
-    SESSION_TTL: int = 48 * 3600
-    SESSION_COOKIE_NAME: str = "homeos_session"
+    SESSION_COOKIE_NAME: str = "session_id"
+    SESSION_TTL: int = 3600  # seconds
     SESSION_SAME_SITE: Literal['lax', 'strict', 'none'] = "lax"
     SESSION_HTTP_ONLY: bool = True
     SESSION_SECURE: bool = False

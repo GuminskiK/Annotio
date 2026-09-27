@@ -1,14 +1,20 @@
-from typing import List
 
-from fastapi import APIRouter, Depends, Body, Request, Response
-from models.CurrentUserContext import CurrentUserContext
-from fastapi import APIRouter, BackgroundTasks, File, UploadFile
 from uuid import UUID
-from app.deps.users import CurrentUser, AdminUser
-from app.modules.auth.models.Users import NewPasswordModel, UserCreate, UserRead, UserUpdate
-from app.modules.auth.services.users_service import (
+
+from fastapi import APIRouter, BackgroundTasks, Body, File, UploadFile
+from src.app.deps.dbs import db_session, redis_client
+from src.app.deps.users import AdminUser, CurrentUser
+from src.app.modules.auth.models.CurrentUserContext import CurrentUserContext
+from src.app.modules.auth.models.Users import (
+    NewPasswordModel,
+    UserCreate,
+    UserRead,
+    UserUpdate,
+)
+from src.app.modules.auth.services.users_service import (
     change_account_status,
     change_password,
+    change_user_role,
     create_user,
     fetch_all_users,
     fetch_user_by_id,
@@ -16,9 +22,7 @@ from app.modules.auth.services.users_service import (
     send_change_password_mail,
     update_user,
     upload_avatar,
-    change_user_role
 )
-from app.deps.dbs import db_session, redis_client
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -30,7 +34,7 @@ async def post_user(
 
     return await create_user(session, user, background_tasks)
 
-@router.get("", response_model=List[UserRead])
+@router.get("", response_model=list[UserRead])
 async def get_all_users(session: db_session, admin: AdminUser):
 
     return await fetch_all_users(session)

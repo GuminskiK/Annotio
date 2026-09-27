@@ -1,9 +1,10 @@
 import uuid
-from typing import TYPE_CHECKING, Any, Dict, List
 from decimal import Decimal
-from sqlmodel import SQLModel, Field, Relationship
+from typing import TYPE_CHECKING, Any
+
 from sqlalchemy import Column
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
     from ...campaigns.models.Campaigns import Campaign
@@ -12,7 +13,7 @@ if TYPE_CHECKING:
 
 class TaskBase(SQLModel):
     campaign_id: uuid.UUID = Field(foreign_key="campaign.id", index=True)
-    data_json: Dict[str, Any] = Field(default_factory=dict, sa_column=Column(JSONB))
+    data_json: dict[str, Any] = Field(default_factory=dict, sa_column=Column(JSONB))
     reward: Decimal = Field(default=0, max_digits=10, decimal_places=2)
     required_assignments: int = Field(default=1)
     time_limit_minutes: int = Field(default=30)
@@ -23,8 +24,8 @@ class TaskBase(SQLModel):
 class Task(TaskBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     campaign: "Campaign" = Relationship(back_populates="tasks")
-    resource_files: List["ResourceFile"] = Relationship(back_populates="task")
-    assignments: List["TaskAssignment"] = Relationship(back_populates="task")
+    resource_files: list["ResourceFile"] = Relationship(back_populates="task")
+    assignments: list["TaskAssignment"] = Relationship(back_populates="task")
 
 class TaskCreate(TaskBase):
     pass
@@ -35,6 +36,6 @@ class TaskRead(TaskBase):
 
 
 class TaskUpdate(SQLModel):
-    data_json: Dict[str, Any] | None = None
+    data_json: dict[str, Any] | None = None
     reward: Decimal | None = None
     required_assignments: int | None = None

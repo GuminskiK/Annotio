@@ -4,13 +4,12 @@ from fastapi.testclient import TestClient
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlmodel import SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
-
-from src.app.deps.users import get_current_admin_user
 from src.app.core.rate_limiting import limiter
-from src.app.main import app
-from src.app.modules.auth.models.Users import User
 from src.app.deps.db import get_session
 from src.app.deps.redis import get_redis
+from src.app.deps.users import get_current_admin_user
+from src.app.main import app
+from src.app.modules.auth.models.Users import User
 
 # Disable rate limiting for tests
 limiter.enabled = False

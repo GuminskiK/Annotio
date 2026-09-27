@@ -1,7 +1,9 @@
 from uuid import UUID
+
 from sqlmodel import SQLModel
 
 from app.modules.auth.models.Users import Role
+
 
 class CurrentUserContext(SQLModel):
     session_id: str

@@ -1,7 +1,11 @@
-import pyotp
+import secrets
+import string
 
-from app.core.config import settings
-from app.core.exceptions import (
+import pyotp
+import redis.asyncio as redis
+from sqlmodel.ext.asyncio.session import AsyncSession
+from src.app.core.config import settings
+from src.app.core.exceptions import (
     Invalid2FACodeException,
     TwoFaAlreadyEnabledException,
     TwoFaNotEnabledException,
@@ -9,16 +13,14 @@ from app.core.exceptions import (
     TwoFaSecretMissingException,
     UserNotFoundException,
 )
-from sqlmodel.ext.asyncio.session import AsyncSession
-from models.BackupCodes import BackupCode
-from utils.auth_utils import get_password_hash, verify_password
+from src.app.core.logger import get_logger
+from src.app.deps.users import CurrentUserContext
+from src.app.modules.auth.models.BackupCodes import BackupCode
+from src.app.modules.auth.utils.users_utils import get_user_by_id
+from utils.auth_utils import get_password_hash
+
 from services.session_service import getSessionsByUserId, updateSession
-from core.logger import get_logger
-from deps.users import CurrentUserContext
-from utils.users_utils import get_user_by_id
-import redis.asyncio as redis
-import secrets
-import string
+
 logger = get_logger(__name__)
 
 

@@ -3,19 +3,17 @@ import json
 import secrets
 from uuid import UUID
 
+import redis.asyncio as redis
 from sqlmodel import select
-
-from app.core.exceptions import (
+from sqlmodel.ext.asyncio.session import AsyncSession
+from src.app.core.exceptions import (
     ApiKeyNotFoundException,
     UserNotFoundException,
 )
-from app.modules.auth.models.APIKeys import APIKey
-from app.modules.auth.models.Users import User
-from app.modules.auth.models.CurrentUserContext import CurrentUserContext
-
-from app.core.logger import get_logger
-from sqlmodel.ext.asyncio.session import AsyncSession
-import redis.asyncio as redis
+from src.app.core.logger import get_logger
+from src.app.modules.auth.models.APIKeys import APIKey
+from src.app.modules.auth.models.CurrentUserContext import CurrentUserContext
+from src.app.modules.auth.models.Users import User
 
 logger = get_logger(__name__)
 
@@ -41,7 +39,7 @@ async def generate_api_key_for_user(
     session.add(apikey)
     await session.commit()
 
-    await redis.set(f"apikey:{hashed}", json.dumps({"id": str(user.id), "username": user.username, "is_superuser": user.is_superuser}))
+    await redis.set(f"apikey:{hashed}", json.dumps({"id": str(user.id), "username": user.username, "role": user.role}))
 
     logger.info("api_key_saved_to_db", user_id=user_id)
     return {"id": apikey.id, "name": apikey.name, "key_hint": apikey.key_hint, "created_at": apikey.created_at, "key": key}

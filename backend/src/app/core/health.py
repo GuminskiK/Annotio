@@ -5,12 +5,11 @@ from typing import Any
 
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from src.app.deps.dbs import db_session, redis_client
+from src.app.deps.dbs import redis_client
 
 
 def check_disk(min_free_percent: float = 10.0) -> tuple[bool, dict]:
-    total, used, free = shutil.disk_usage(os.path.abspath(os.sep))
+    total, _, free = shutil.disk_usage(os.path.abspath(os.sep))
     free_pct = round(free / total * 100, 2)
 
     return free_pct >= min_free_percent, {

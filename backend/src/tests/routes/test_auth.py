@@ -2,7 +2,6 @@ from datetime import timedelta
 from unittest.mock import patch
 
 import pyotp
-
 from src.app.core.auth.jwt import create_token
 from src.app.modules.auth.models.Tokens import TokenTypes
 

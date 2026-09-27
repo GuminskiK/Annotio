@@ -1,7 +1,9 @@
-from datetime import datetime
-from pydantic import BaseModel
 from uuid import UUID
+
+from pydantic import BaseModel
+
 from app.modules.auth.models.Users import Role
+
 
 class SessionData(BaseModel):
     session_id: str

@@ -1,12 +1,13 @@
+import hashlib
 import secrets
 import uuid
-from typing import TYPE_CHECKING, Any, Dict
 from datetime import datetime, timedelta, timezone
 from enum import Enum
-from sqlmodel import SQLModel, Field, Relationship
+from typing import TYPE_CHECKING, Any
+
 from sqlalchemy import Column
 from sqlalchemy.dialects.postgresql import JSONB
-import hashlib
+from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
     from ...auth.models.Users import User
@@ -25,7 +26,7 @@ class TaskAssignmentBase(SQLModel):
     worker_id: uuid.UUID = Field(foreign_key="user.id", index=True)
     status: TaskAssignmentStatus = Field(default=TaskAssignmentStatus.RESERVED)
     expires_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc) + timedelta(minutes=30))
-    result_data_json: Dict[str, Any] | None = Field(default=None, sa_column=Column(JSONB))
+    result_data_json: dict[str, Any] | None = Field(default=None, sa_column=Column(JSONB))
 
 class TaskAssignment(TaskAssignmentBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
@@ -47,5 +48,5 @@ class TaskAssignmentRead(TaskAssignmentBase):
 
 class TaskAssignmentUpdate(SQLModel):
     status: TaskAssignmentStatus | None = None
-    result_data_json: Dict[str, Any] | None = None
+    result_data_json: dict[str, Any] | None = None
     submitted_at: datetime | None = None

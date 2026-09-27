@@ -1,35 +1,40 @@
-import shutil
+from datetime import timedelta
 from pathlib import Path as FilePath
+from uuid import UUID, uuid4
+
+import redis.asyncio as redis
 from fastapi import BackgroundTasks, File, UploadFile
 from sqlmodel import select
-from backend.src.app.modules.finance.models.Wallet import Wallet
-from utils.auth_utils import get_password_hash
-from app.core.exceptions import (
+from sqlmodel.ext.asyncio.session import AsyncSession
+from src.app.core.config import settings
+from src.app.core.exceptions import (
     EmailTakenException,
+    InvalidTokenException,
+    NoFileException,
     NoFileNameException,
     NoFileTypeException,
     UsernameTakenException,
     UserNotFoundException,
     WrongFileTypeException,
-    NoFileException,
-    InvalidTokenException,
-    WrongTokenTypeException
+    WrongTokenTypeException,
 )
-from uuid import UUID, uuid4
-
-from models.Users import User, UserCreate, UserUpdate
-from models.Tokens import TokenTypes
-from utils.users_utils import get_user_by_id, get_user_by_username, get_blind_index, get_user_by_email
-from app.core.logger import get_logger
-from models.CurrentUserContext import CurrentUserContext
-from services.session_service import getSessionsByUserId, updateSession, deleteSession
-from sqlmodel.ext.asyncio.session import AsyncSession
+from src.app.core.logger import get_logger
+from src.app.deps.dbs import db_session
+from src.app.modules.auth.models.CurrentUserContext import CurrentUserContext
+from src.app.modules.auth.models.Tokens import TokenTypes
+from src.app.modules.auth.models.Users import User, UserCreate, UserUpdate
+from src.app.modules.auth.utils.auth_utils import get_password_hash
+from src.app.modules.finance.models.Wallet import Wallet
 from utils.jwt import create_token, decode_token
-import redis.asyncio as redis
-from datetime import datetime, timedelta, timezone
+from utils.users_utils import (
+    get_blind_index,
+    get_user_by_email,
+    get_user_by_id,
+    get_user_by_username,
+)
+
 from services.email_service import send_activation_email, send_password_reset_email
-from core.config import settings
-from deps.dbs import db_session, redis_client
+from services.session_service import deleteSession, getSessionsByUserId, updateSession
 
 logger = get_logger(__name__)
 

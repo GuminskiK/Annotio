@@ -1,7 +1,8 @@
-from sqlmodel import SQLModel, Field
-from uuid import UUID
 from datetime import datetime, timedelta
-from typing import Optional
+from uuid import UUID
+
+from sqlmodel import Field, SQLModel
+
 
 class IdempotencyKey(SQLModel, table=True):
     id: str = Field(primary_key=True) 

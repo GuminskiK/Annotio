@@ -1,12 +1,11 @@
 import hashlib
-import logging
 import uuid
 from datetime import datetime, timedelta, timezone
-from typing import Any, Optional
+from typing import Any
+from uuid import UUID
 
 from jose import jwt
 from passlib.context import CryptContext
-from uuid import UUID
 from src.app.core.config import settings
 
 pwd_context = CryptContext(

@@ -1,29 +1,31 @@
-from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter
-
 from src.app.deps.dbs import db_session
 from src.app.deps.users import CurrentUser
-from src.app.modules.tasks.models.TaskAssignments import TaskAssignmentCreate, TaskAssignmentRead, TaskAssignmentUpdate
+from src.app.modules.tasks.models.TaskAssignments import (
+    TaskAssignmentCreate,
+    TaskAssignmentRead,
+)
+from src.app.modules.tasks.services.task_assignment_change_status import (
+    accept_task_assignment,
+    auditor_won_dispute,
+    dispute_rejection,
+    reject_task_assignment,
+)
 from src.app.modules.tasks.services.task_assignment_crud import (
     fetch_task_assignment_by_id,
     fetch_user_task_assignments,
 )
 from src.app.modules.tasks.services.task_assignment_service import (
-    reserve_task, fetch_task_assignment_by_token, submit_task_assignment
-)
-
-from src.app.modules.tasks.services.task_assignment_change_status import (
-    accept_task_assignment,
-    reject_task_assignment,
-    dispute_rejection,
-    auditor_won_dispute
+    fetch_task_assignment_by_token,
+    reserve_task,
+    submit_task_assignment,
 )
 
 router = APIRouter(prefix="/task_assignments", tags=["task_assignments"])
 
-@router.get("/users/{user_id}", response_model=List[TaskAssignmentRead])
+@router.get("/users/{user_id}", response_model=list[TaskAssignmentRead])
 async def get_task_assignments(session: db_session, user_id: UUID):
     return await fetch_user_task_assignments(session, user_id)
 

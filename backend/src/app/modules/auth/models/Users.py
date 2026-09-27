@@ -1,13 +1,15 @@
-from typing import TYPE_CHECKING, List, Optional
-from enum import Enum
-from pydantic import EmailStr, field_validator
-from sqlmodel import JSON, Column, Field, Relationship, SQLModel
 import uuid
+from enum import Enum
+from typing import TYPE_CHECKING, Optional
+
+from pydantic import EmailStr, field_validator
+from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
+    from app.modules.finance.models.Wallet import Wallet
+
     from .APIKeys import APIKey
     from .BackupCodes import BackupCode
-    from app.modules.finance.models.Wallet import Wallet
 
 USERNAME_PATTERN = r"^[a-zA-Z0-9_\-]+$"
 
@@ -48,6 +50,8 @@ class User(UserBase, table=True):
     totp_secret: str | None = Field(default=None)
     is_totp_enabled: bool = Field(default=False)
 
+    avatar_url: str | None = Field(default=None)
+
     backup_codes: list["BackupCode"] = Relationship(back_populates="user", sa_relationship_kwargs={"cascade": "all, delete-orphan"})
     api_keys: list["APIKey"] = Relationship(back_populates="owner")
     # profile: Optional["UserProfile"] = Relationship(back_populates="user", sa_relationship_kwargs={"uselist": False})
@@ -71,10 +75,10 @@ class UserRead(UserBase):
     is_totp_enabled: bool
 
 class UserUpdate(SQLModel):
-    username: Optional[str] = Field(default=None, min_length=3, max_length=40, regex=USERNAME_PATTERN)
-    plain_password: Optional[str] = None
-    is_blocked: Optional[bool] = None
-    email: Optional[EmailStr] = Field(unique=True)
+    username: str | None = Field(default=None, min_length=3, max_length=40, regex=USERNAME_PATTERN)
+    plain_password: str | None = None
+    is_blocked: bool | None = None
+    email: EmailStr | None = Field(unique=True)
 
     @field_validator("plain_password")
     @classmethod

@@ -4,7 +4,6 @@ from fastapi import HTTPException, status
 class AppBaseException(HTTPException):
     """Base class for all app exceptions."""
 
-    pass
 
 class ResourceNotFoundException(AppBaseException):
     def __init__(self, resource_name: str = "Resource"):

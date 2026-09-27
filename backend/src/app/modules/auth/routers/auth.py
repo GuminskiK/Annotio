@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Depends, Body, Request, Response
+from fastapi import APIRouter, Body, Depends, Request, Response
 from fastapi.security import OAuth2PasswordRequestForm
-from app.deps.dbs import db_session, redis_client
-from app.modules.auth.services.auth_service import login, logout, login_mfa
+from src.app.deps.dbs import db_session, redis_client
+from src.app.modules.auth.services.auth_service import login, login_mfa, logout
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 

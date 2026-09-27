@@ -1,5 +1,7 @@
+from uuid import UUID, uuid4
+
 from sqlmodel import Field, SQLModel
-from uuid import uuid4, UUID
+
 
 class BackupCode(SQLModel):
     id: UUID = Field(default_factory=uuid4, index=True, primary_key=True, nullable=False)

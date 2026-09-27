@@ -1,8 +1,9 @@
-from sqlmodel.ext.asyncio.session import AsyncSession
-from models.TaskAssignments import TaskAssignment
-from sqlmodel import select
-from app.core.exceptions import TaskAssignmentNotFoundException
 from uuid import UUID
+
+from sqlmodel import select
+from sqlmodel.ext.asyncio.session import AsyncSession
+from src.app.core.exceptions import TaskAssignmentNotFoundException
+from src.app.modules.tasks.models.TaskAssignments import TaskAssignment
 
 
 async def fetch_task_assignment_by_id(session: AsyncSession, task_assignment_id: UUID):

@@ -1,8 +1,14 @@
-from sqlmodel.ext.asyncio.session import AsyncSession
-from models.Campaigns import Campaign, CampaignCreate, CampaignUpdate
-from sqlmodel import select
-from app.core.exceptions import CampaignNotFoundException
 from uuid import UUID
+
+from sqlmodel import select
+from sqlmodel.ext.asyncio.session import AsyncSession
+from src.app.core.exceptions import CampaignNotFoundException
+from src.app.modules.campaigns.models.Campaigns import (
+    Campaign,
+    CampaignCreate,
+    CampaignUpdate,
+)
+
 
 async def create_campaign(session: AsyncSession, campaign: CampaignCreate, user_id: UUID):
     
@@ -62,4 +68,3 @@ async def delete_campaign(session: AsyncSession, campaign_id: UUID, client_id: U
     await session.delete(db_campaign)
     await session.commit()
 
-    return None

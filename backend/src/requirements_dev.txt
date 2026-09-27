@@ -3,5 +3,3 @@ pytest
 pytest-asyncio
 aiosqlite
 ruff
-black
-isort

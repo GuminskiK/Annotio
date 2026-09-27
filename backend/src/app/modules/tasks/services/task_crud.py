@@ -1,8 +1,13 @@
-from sqlmodel.ext.asyncio.session import AsyncSession
-from models.Tasks import Task, TaskCreate, TaskUpdate
-from sqlmodel import select
-from app.core.exceptions import TaskAlreadyHaveAssignmentException, TaskNotFoundException
 from uuid import UUID
+
+from sqlmodel import select
+from sqlmodel.ext.asyncio.session import AsyncSession
+from src.app.core.exceptions import (
+    TaskAlreadyHaveAssignmentException,
+    TaskNotFoundException,
+)
+from src.app.modules.tasks.models.Tasks import Task, TaskCreate, TaskUpdate
+
 
 async def create_task(session: AsyncSession, task: TaskCreate, owner_id: UUID):
     
@@ -66,4 +71,3 @@ async def delete_task(session: AsyncSession, task_id: UUID, owner_id: UUID):
     await session.delete(db_task)
     await session.commit()
 
-    return None

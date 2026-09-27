@@ -1,8 +1,6 @@
-from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter
-
 from src.app.deps.dbs import db_session
 from src.app.deps.users import CurrentUser
 from src.app.modules.tasks.models.Tasks import TaskCreate, TaskRead, TaskUpdate
@@ -20,7 +18,7 @@ router = APIRouter(prefix="/tasks", tags=["tasks"])
 async def post_task(session: db_session, user: CurrentUser, task: TaskCreate):
     return await create_task(session, task, user.user_id)
 
-@router.get("/users/{user_id}", response_model=List[TaskRead])
+@router.get("/users/{user_id}", response_model=list[TaskRead])
 async def get_tasks(session: db_session, user_id: UUID):
     return await fetch_user_tasks(session, user_id)
 

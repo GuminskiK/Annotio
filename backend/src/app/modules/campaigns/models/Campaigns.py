@@ -1,8 +1,9 @@
-from typing import TYPE_CHECKING, List, Optional
-from sqlmodel import JSON, Column, Field, Relationship, SQLModel
+import uuid
 from decimal import Decimal
 from enum import Enum
-import uuid
+from typing import TYPE_CHECKING
+
+from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
     from ...auth.models.Users import User
@@ -29,7 +30,7 @@ class CampaignBase(SQLModel):
 class Campaign(CampaignBase, table = True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     client: "User" = Relationship(back_populates="campaigns")
-    tasks: List["Task"] = Relationship(back_populates="campaign")
+    tasks: list["Task"] = Relationship(back_populates="campaign")
 
 class CampaignCreate(CampaignBase):
     pass

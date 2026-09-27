@@ -1,9 +1,10 @@
 import uuid
-from typing import TYPE_CHECKING
-from decimal import Decimal
 from datetime import datetime
+from decimal import Decimal
 from enum import Enum
-from sqlmodel import SQLModel, Field, Relationship
+from typing import TYPE_CHECKING
+
+from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
     from .Wallet import Wallet

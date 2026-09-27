@@ -1,13 +1,12 @@
 from fastapi import APIRouter, Body
-
-from app.deps.users import CurrentUser
-from app.core.config import settings
-from app.modules.auth.services.two_fa_service import (
+from src.app.core.config import settings
+from src.app.deps.dbs import db_session, redis_client
+from src.app.deps.users import CurrentUser
+from src.app.modules.auth.services.two_fa_service import (
     generate_setup_data,
     verify_and_disable,
     verify_and_enable,
 )
-from app.deps.dbs import db_session, redis_client
 
 router = APIRouter(prefix="/2fa", tags=["2fa"])
 

@@ -1,11 +1,9 @@
 from fastapi import APIRouter
 from sqlmodel import select
-
 from src.app.core.exceptions import WalletNotFoundException
 from src.app.deps.dbs import db_session
 from src.app.deps.users import CurrentUser
 from src.app.modules.finance.models.Wallet import Wallet, WalletRead
-
 
 router = APIRouter(prefix="/wallet", tags=["wallet"])
 

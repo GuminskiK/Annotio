@@ -1,11 +1,13 @@
-from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter
-
 from src.app.deps.dbs import db_session
 from src.app.deps.users import CurrentUser
-from src.app.modules.campaigns.models.Campaigns import CampaignCreate, CampaignRead, CampaignUpdate
+from src.app.modules.campaigns.models.Campaigns import (
+    CampaignCreate,
+    CampaignRead,
+    CampaignUpdate,
+)
 from src.app.modules.campaigns.services.campaign_service import (
     create_campaign,
     delete_campaign,
@@ -20,7 +22,7 @@ router = APIRouter(prefix="/campaigns", tags=["campaigns"])
 async def post_campaign(session: db_session, user: CurrentUser, campaign: CampaignCreate):
     return await create_campaign(session, campaign, user.user_id)
 
-@router.get("/users/{user_id}", response_model=List[CampaignRead])
+@router.get("/users/{user_id}", response_model=list[CampaignRead])
 async def get_campaigns(session: db_session, user_id: UUID):
     return await fetch_user_campaigns(session, user_id)
 

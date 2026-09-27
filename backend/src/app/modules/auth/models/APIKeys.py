@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Optional
-from uuid import uuid4, UUID
+from typing import TYPE_CHECKING
+from uuid import UUID, uuid4
 
 from sqlmodel import Field, Relationship, SQLModel
 
@@ -16,7 +16,7 @@ class APIKey(SQLModel, table=True):
     key_hint: str
 
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
-    last_used_at: Optional[datetime] = Field(default=None)
+    last_used_at: datetime | None = Field(default=None)
 
     user_id: UUID = Field(foreign_key="user.id")
     owner: "User" = Relationship(back_populates="api_keys")

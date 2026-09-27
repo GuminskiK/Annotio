@@ -2,6 +2,7 @@ services:
   backend:
     build: 
       context: ./backend
+      dockerfile: Dockerfile.yaml
     volumes:
       - ./backend:/app
     env_file:
@@ -70,7 +71,7 @@ services:
 
   nginx:
     image: nginx:alpine
-    container_name: creatorhub_nginx
+    container_name: nginx
     restart: unless-stopped
     ports:
       - "8080:80"
@@ -84,6 +85,18 @@ services:
         condition: service_started
       init-certs:
         condition: service_completed_successfully
+      frontend:
+        condition: service_completed_successfully
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.yaml
+    container_name: frontend
+    volumes:
+      - frontend_static:/output
     networks:
       - app-network
 

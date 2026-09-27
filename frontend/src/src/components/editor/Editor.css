@@ -1,0 +1,150 @@
+.tiptap {
+  color: #e2e8f0;
+  background: #0f172a;
+  caret-color: #67e8f9;
+
+  /* Basic editor styles */
+  > * + * {
+    margin-top: 0.75em;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    line-height: 1.2;
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+    font-weight: bold;
+    color: #f8fafc;
+  }
+
+  h1 { font-size: 2.25rem; }
+  h2 { font-size: 1.875rem; }
+  h3 { font-size: 1.5rem; }
+
+  /* Tiptap Custom Image Align & Dual Layout */
+  img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease-in-out;
+  }
+  
+  img[data-align="center"] {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  img[data-layout="dual"] {
+    display: inline-block;
+    width: 48%;
+    margin-right: 2%;
+  }
+
+  img[data-layout="dual"]:last-child {
+    margin-right: 0;
+  }
+
+  /* Table styles */
+  table {
+    border-collapse: collapse;
+    margin: 0;
+    overflow: hidden;
+    table-layout: fixed;
+    width: 100%;
+    border: 1px solid #334155;
+
+    td,
+    th {
+      border: 1px solid #334155;
+      box-sizing: border-box;
+      min-width: 1em;
+      padding: 0.5rem 0.75rem;
+      position: relative;
+      vertical-align: top;
+
+      > * {
+        margin-bottom: 0;
+      }
+    }
+
+    th {
+      background-color: #1e293b;
+      color: #f8fafc;
+      font-weight: 600;
+      text-align: left;
+    }
+  }
+  /* Table Center alignment */
+  table[data-align="center"] {
+    margin-left: auto;
+    margin-right: auto;
+    width: max-content;
+    min-width: 30%;
+  }
+
+  /* Do prawej */
+  table[data-align="right"] {
+    margin-left: auto;
+    margin-right: 0;
+    width: max-content;
+    min-width: 30%;
+  }
+  
+  table[data-align="left"] {
+    margin-left: 0;
+    margin-right: auto;
+    width: max-content;
+    min-width: 30%;
+  }
+
+  /* Youtube */
+  iframe {
+    border: none;
+    border-radius: 0.5rem;
+    margin-top: 1em;
+    margin-bottom: 1em;
+    display: block;
+  }
+
+  blockquote {
+    border-left: 3px solid #22d3ee;
+    margin: 1.5rem 0;
+    padding-left: 1rem;
+    color: #94a3b8;
+    font-style: italic;
+  }
+
+  hr {
+    border: 0;
+    border-top: 1px solid #334155;
+    margin: 2rem 0;
+  }
+
+  /* Table Resizing handle */
+  .column-resize-handle {
+    background-color: #3b82f6;
+    bottom: -2px;
+    position: absolute;
+    right: -2px;
+    pointer-events: none;
+    top: 0;
+    width: 4px;
+    z-index: 20;
+  }
+
+  /* Youtube Align */
+  iframe[data-align="center"] {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  iframe[data-align="right"] {
+    margin-left: auto;
+    margin-right: 0;
+  }
+}
+
+.tiptap-wrapper .ProseMirror { min-height: 100%; height: 100%; }

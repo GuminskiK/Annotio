@@ -1,13 +1,15 @@
+from uuid import UUID
+
 from fastapi import APIRouter
-from app.modules.auth.services.session_service import (
+from src.app.core.exceptions import CurrentUserNeededException
+from src.app.deps.dbs import redis_client
+from src.app.deps.users import AdminUser, CurrentUser
+from src.app.modules.auth.models.Users import Role
+from src.app.modules.auth.services.session_service import (
+    deleteSession,
     getSessionDataByUserId,
     getSessionsByUserId,
-    deleteSession
 )
-from app.core.exceptions import CurrentUserNeededException
-from app.deps.users import CurrentUser, AdminUser
-from app.deps.dbs import redis_client
-from uuid import UUID
 
 router = APIRouter(prefix="/sessions", tags=["sessions"])
 
@@ -24,7 +26,7 @@ async def get_sessions_by_user_id (user_id: UUID, admin: AdminUser, redis: redis
 @router.delete("/{session_id}")
 async def delete_session_by_id (user: CurrentUser, session_id: str, redis: redis_client):
 
-    if ( session_id not in await getSessionsByUserId(redis, user.user_id) and not user.is_superuser):
+    if ( session_id not in await getSessionsByUserId(redis, user.user_id) and not user.role == Role.ADMIN):
         raise CurrentUserNeededException(detail="You can only delete your own sessions unless you are an admin")
 
     return await deleteSession( redis, session_id)

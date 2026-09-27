@@ -3,11 +3,14 @@ from uuid import UUID
 
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
-
+from src.app.core.config import settings
 from src.app.core.exceptions import BadRequestException
 from src.app.modules.finance.models.Transaction import Transaction, TransactionType
-from src.app.core.config import settings
-from src.app.modules.finance.utils.finance_utils import _validate_amount, _get_wallet_for_update
+from src.app.modules.finance.utils.finance_utils import (
+    _get_wallet_for_update,
+    _validate_amount,
+)
+
 
 async def record_deposit(
     session: AsyncSession,

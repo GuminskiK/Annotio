@@ -1,13 +1,14 @@
-import redis.asyncio as redis
-from models.Users import User
-from models.SessionData import SessionData
-from uuid import UUID, uuid4
-from fastapi import Depends, Form, Request, Response
-from datetime import timezone, datetime
-from core.logger import get_logger
-from app.core.config import settings
-from typing import List, cast
 import json
+from datetime import datetime, timezone
+from uuid import UUID, uuid4
+
+import redis.asyncio as redis
+from fastapi import Request, Response
+from src.app.core.config import settings
+from src.app.core.logger import get_logger
+from src.app.modules.auth.models.SessionData import SessionData
+from src.app.modules.auth.models.Users import User
+
 logger = get_logger(__name__)
 
 async def createSession(
@@ -34,7 +35,7 @@ async def createSession(
 
         user_id=user.id,
         username=user.username,
-        is_superuser=user.is_superuser,
+        role = user.role,
         is_totp_enabled=user.is_totp_enabled,
 
         avatar_url=user.avatar_url

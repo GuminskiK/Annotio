@@ -1,13 +1,14 @@
-from fastapi import APIRouter, Body
 from uuid import UUID
-from src.app.deps.users import CurrentUser, AdminUser
-from services.apikeys_service import (
+
+from fastapi import APIRouter, Body
+from src.app.deps.dbs import db_session, redis_client
+from src.app.deps.users import AdminUser, CurrentUser
+from src.app.modules.auth.services.apikeys_service import (
     fetch_user_apikeys,
     fetch_user_apikeys_by_id,
     generate_api_key_for_user,
-    revoke_user_api_key
+    revoke_user_api_key,
 )
-from app.deps.dbs import db_session, redis_client
 
 router = APIRouter(prefix="/apikeys", tags=["apikeys"])
 

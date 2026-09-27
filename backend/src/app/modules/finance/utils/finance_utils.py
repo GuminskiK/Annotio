@@ -1,10 +1,11 @@
 from decimal import Decimal
 from uuid import UUID
+
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
-
 from src.app.core.exceptions import BadRequestException, WalletNotFoundException
 from src.app.modules.finance.models.Wallet import Wallet
+
 
 def _validate_amount(amount: Decimal) -> Decimal:
     amount = Decimal(amount)

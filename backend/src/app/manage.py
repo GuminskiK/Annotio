@@ -1,13 +1,13 @@
 import argparse
-from app.modules.auth.models.APIKeys import APIKey
-from app.modules.auth.models.Users import UserUpdate
-from deps.dbs import db_deps, redis_pure
-from app.modules.auth.services.users_service import update_user
-from app.modules.auth.services.two_fa_service import verify_and_disable
-from app.modules.auth.utils.users_utils import get_user_by_username
-from app.core.exceptions import UserNotFoundException
-from app.modules.auth.models.CurrentUserContext import CurrentUserContext
 import asyncio
+
+from src.app.core.exceptions import UserNotFoundException
+from src.app.deps.dbs import db_deps, redis_pure
+from src.app.modules.auth.models.CurrentUserContext import CurrentUserContext
+from src.app.modules.auth.models.Users import UserUpdate
+from src.app.modules.auth.services.users_service import update_user
+from src.app.modules.auth.utils.users_utils import get_user_by_username
+
 
 async def reset_password(args):
 
@@ -27,13 +27,13 @@ async def reset_password(args):
             if not user:
                 raise UserNotFoundException()
             
-            context = CurrentUserContext(
-                session_id="reset-password-session",
-                user_id=user.id,
-                username=args.username,
-                role=user.role,
-                is_totp_enabled=False
-            )
+            # context = CurrentUserContext(
+            #     session_id="reset-password-session",
+            #     user_id=user.id,
+            #     username=args.username,
+            #     role=user.role,
+            #     is_totp_enabled=False
+            # )
 
             await update_user(
                 redis_pure,
