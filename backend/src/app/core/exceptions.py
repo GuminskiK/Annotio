@@ -46,6 +46,22 @@ class TransactionNotFoundException(ResourceNotFoundException):
 class WalletNotFoundException(ResourceNotFoundException):
     def __init__(self, resource_name: str = "Wallet"):
         super().__init__(resource_name=resource_name)
+
+class CampaignNotFoundException(ResourceNotFoundException):
+    def __init__(self, resource_name: str = "Campaign"):
+        super().__init__(resource_name=resource_name)
+
+class TaskNotFoundException(ResourceNotFoundException):
+    def __init__(self, resource_name: str = "Task"):
+        super().__init__(resource_name=resource_name)
+
+class TaskAssignmentNotFoundException(ResourceNotFoundException):
+    def __init__(self, resource_name: str = "Task Assignment"):
+        super().__init__(resource_name=resource_name)
+
+class ResourceFileNotFoundException(ResourceNotFoundException):
+    def __init__(self, resource_name: str = "Resource File"):
+        super().__init__(resource_name=resource_name)
 ##########################
 
 class AdminForibiddenFromCreatingApiKeyException(ForbiddenException):
@@ -113,6 +129,14 @@ class NoFileNameException(BadRequestException):
 class NoFileException(BadRequestException):
     def __init__(self, detail: str = "Bad Request"):
         super().__init__(detail="No file uploaded")
+
+class TaskAlreadyReservedException(BadRequestException):
+    def __init__(self, detail: str = "Bad Request"):
+        super().__init__(detail="Task is already reserved")
+
+class TaskAlreadyHaveAssignmentException(BadRequestException):
+    def __init__(self, detail: str = "Bad Request"):
+        super().__init__(detail="Task already has an assignment for this worker")
 
 ####
 

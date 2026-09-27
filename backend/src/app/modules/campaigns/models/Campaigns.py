@@ -6,7 +6,7 @@ import uuid
 
 if TYPE_CHECKING:
     from ...auth.models.Users import User
-    from ...tasks.models.Task import Task
+    from ...tasks.models.Tasks import Task
 
 class AcceptanceStrategy(Enum):
     AUTO_48H = "auto_48h"

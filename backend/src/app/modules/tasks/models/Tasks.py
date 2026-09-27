@@ -6,14 +6,18 @@ from sqlalchemy import Column
 from sqlalchemy.dialects.postgresql import JSONB
 
 if TYPE_CHECKING:
-    from ...campaigns.models.Campaign import Campaign
+    from ...campaigns.models.Campaigns import Campaign
     from .ResourceFile import ResourceFile
-    from .TaskAssignment import TaskAssignment
+    from .TaskAssignments import TaskAssignment
 
 class TaskBase(SQLModel):
     campaign_id: uuid.UUID = Field(foreign_key="campaign.id", index=True)
     data_json: Dict[str, Any] = Field(default_factory=dict, sa_column=Column(JSONB))
     reward: Decimal = Field(default=0, max_digits=10, decimal_places=2)
+    required_assignments: int = Field(default=1)
+    time_limit_minutes: int = Field(default=30)
+
+    owner_id: uuid.UUID = Field(foreign_key="user.id", index=True)
 
 
 class Task(TaskBase, table=True):
@@ -33,3 +37,4 @@ class TaskRead(TaskBase):
 class TaskUpdate(SQLModel):
     data_json: Dict[str, Any] | None = None
     reward: Decimal | None = None
+    required_assignments: int | None = None

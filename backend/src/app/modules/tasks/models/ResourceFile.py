@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from sqlmodel import SQLModel, Field, Relationship
 
 if TYPE_CHECKING:
-    from .Task import Task
+    from .Tasks import Task
 
 class ResourceFileBase(SQLModel):
     task_id: uuid.UUID = Field(foreign_key="task.id", index=True)
