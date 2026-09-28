@@ -17,9 +17,8 @@ from src.app.core.logger import get_logger
 from src.app.deps.users import CurrentUserContext
 from src.app.modules.auth.models.BackupCodes import BackupCode
 from src.app.modules.auth.utils.users_utils import get_user_by_id
-from utils.auth_utils import get_password_hash
-
-from services.session_service import getSessionsByUserId, updateSession
+from src.app.modules.auth.utils.auth_utils import get_password_hash
+from src.app.modules.auth.services.session_service import getSessionsByUserId, updateSession
 
 logger = get_logger(__name__)
 
@@ -80,7 +79,7 @@ async def verify_and_enable(user_context: CurrentUserContext, redis: redis.Redis
         code = ''.join(secrets.choice(string.ascii_uppercase + string.digits) for _ in range(8))
         codes.append(code)
         hashed = get_password_hash(code)
-        session.add( BackupCode(user_id=user.id, code_hash=hashed) )
+        session.add(BackupCode(user_id=user.id, code_hash=hashed))
 
     user.is_totp_enabled = True
     session.add(user)
@@ -92,7 +91,10 @@ async def verify_and_enable(user_context: CurrentUserContext, redis: redis.Redis
 
     logger.info("2fa_enabled", user_id=str(user.id))
 
-    return {"message": "2FA successfully enabled"}
+    return {
+        "message": "2FA successfully enabled",
+        "backup_codes": codes,
+    }
 
 
 async def verify_and_disable(user_context: CurrentUserContext, redis: redis.Redis, session: AsyncSession, code: str):

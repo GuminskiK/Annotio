@@ -100,7 +100,7 @@ async def complete_payment_operation(
 
     operation.status = PaymentOperationStatus.COMPLETED
     operation.provider_reference = provider_reference
-    operation.completed_at = datetime.utcnow()
+    operation.completed_at = datetime.now()
     session.add(operation)
     await session.commit()
     await session.refresh(operation)

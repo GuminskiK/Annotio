@@ -21,6 +21,7 @@ async def lifespan(app: FastAPI):
 
     from sqlalchemy.orm import selectinload
     from sqlmodel import SQLModel, select
+    from src.app.modules.auth.models.BackupCodes import BackupCode
     from src.app.modules.auth.models.Users import Role, User
     from src.app.modules.auth.utils.auth_utils import get_password_hash
     from src.app.modules.auth.utils.users_utils import get_blind_index

@@ -79,14 +79,13 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/certs:/etc/nginx/certs:ro
-      - frontend_static:/usr/share/nginx/html:ro
     depends_on:
       backend:
         condition: service_started
       init-certs:
         condition: service_completed_successfully
       frontend:
-        condition: service_completed_successfully
+        condition: service_started
     networks:
       - app-network
 
@@ -96,14 +95,15 @@ services:
       dockerfile: Dockerfile.yaml
     container_name: frontend
     volumes:
-      - frontend_static:/output
+      - ./frontend/src:/app
+      - frontend_node_modules:/app/node_modules
     networks:
       - app-network
 
 volumes:
   postgres_data:
   redis_data:
-  frontend_static:
+  frontend_node_modules:
 
 networks:
   app-network:

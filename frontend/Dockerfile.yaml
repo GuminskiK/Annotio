@@ -8,6 +8,4 @@ RUN npm install --legacy-peer-deps
 
 COPY src/ .
 
-RUN npm run build
-
-CMD ["sh", "-c", "rm -rf /output/* && cp -r dist/. /output/"]
+CMD ["npm", "run", "dev"]

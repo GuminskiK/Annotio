@@ -3,7 +3,7 @@ import json
 from typing import Annotated
 
 import redis.asyncio as redis
-from dbs import db_deps, redis_pure
+from src.app.deps.dbs import db_deps, redis_pure
 from fastapi import Depends, HTTPException, Request, Response, status
 from fastapi.security import APIKeyHeader
 from sqlmodel.ext.asyncio.session import AsyncSession

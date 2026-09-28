@@ -28,10 +28,10 @@ export default function Login() {
     }
   }, [isAuthenticated, isLoading, navigate]);
 
-  const handleLogin = async (event: React.SubmitEvent<HTMLFormElement>) => {
+  const handleLogin = async (event: React.SubmitEvent) => {
     event.preventDefault();
     setErrorMessage(null);
-    const formData = new FormData(event.currentTarget);
+    const formData = new FormData(event.currentTarget as HTMLFormElement);
 
     if (step === 1) {
       const username = formData.get("username") as string;
@@ -43,7 +43,7 @@ export default function Login() {
         
         const response = await login(username, password);
 
-        if (response?.status === 200) {
+        if (response?.message === 'Logged in successfully!') {
           navigate('/dashboard'); 
         } else if (response?.status === "mfa_required") {
           response.mfa_token && setCredentials(prev => ({ ...prev, mfaToken: response.mfa_token }));
@@ -52,7 +52,7 @@ export default function Login() {
 
       } catch (error: any) {
 
-        setErrorMessage("Nieprawidłowy login lub hasło.");
+        setErrorMessage(error?.response?.data?.detail || "Nieprawidłowy login lub hasło.");
         console.error('Login failed:', error);
       }
 
@@ -61,11 +61,11 @@ export default function Login() {
       
       try {
         const response = await loginMfa(mfaCode, credentials.mfaToken);
-        if (response?.status === 200) {
+        if (response?.message === 'Logged in successfully!') {
           navigate('/dashboard'); 
         }
       } catch (error: any) {
-        setErrorMessage("Nieprawidłowy kod 2FA.");
+        setErrorMessage(error?.response?.data?.detail || "Nieprawidłowy kod 2FA.");
         console.error('2FA validation failed:', error);
       }
     }
@@ -76,7 +76,7 @@ export default function Login() {
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>
-            <div className="text-2xl font-bold text-center">HomeOS</div>
+            <div className="text-2xl font-bold text-center">Annotio</div>
           </CardTitle>
           {step === 2 && (
             <CardDescription className="text-center mt-2">
@@ -107,6 +107,13 @@ export default function Login() {
                       required
                     />
                   </div>
+                  <button
+                    type="button"
+                    className="text-sm text-primary underline underline-offset-4 text-left"
+                    onClick={() => navigate('/forgot-password')}
+                  >
+                    Nie pamiętam hasła
+                  </button>
                   <div className="grid gap-2">
                     <Label htmlFor="password">Password</Label>
                     <PasswordInput 
@@ -124,10 +131,10 @@ export default function Login() {
                     id="mfa_code"
                     name="mfa_code"
                     type="text"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    maxLength={6}
-                    placeholder="000000"
+                    inputMode="text"
+                    pattern="[A-Za-z0-9]{6,8}"
+                    maxLength={8}
+                    placeholder="Kod TOTP lub zapasowy"
                     autoComplete="one-time-code"
                     required
                   />

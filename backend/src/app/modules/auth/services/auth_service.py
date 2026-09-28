@@ -42,6 +42,9 @@ async def login(
         logger.warning("invalid_credentials_attempt", username=form_data.username)
         raise InvalidCredentialsException()
 
+    if not user.is_activated:
+        logger.warning("inactive_user_login_attempt", username=form_data.username)
+        raise InvalidCredentialsException(detail="Konto nieaktywne")
 
     if user.is_totp_enabled:
 
@@ -102,12 +105,15 @@ async def login_mfa(
             raise Invalid2FACodeException()
         
         elif len(mfa_code) == 8:
-            for code in user.backup_codes:
-                if verify_password(mfa_code, code.code_hash):
-                    user.backup_codes.remove(code)
+            for backup_code in user.backup_codes:
+                if verify_password(mfa_code, backup_code.code_hash):
+                    await session.delete(backup_code)
                     await session.commit()
                     await createSession(request, response, user, redis)
                     logger.info("user_logged_in_with_backup_code", user_id=str(user.id), uuid=str(user.id))
+                    return {"message": "Logged in successfully!"}
+
+        raise Invalid2FACodeException()
 
     await createSession(request, response, user, redis)
 

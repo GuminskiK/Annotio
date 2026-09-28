@@ -55,7 +55,7 @@ async def reset_password(args):
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser(description="Zarządzanie aplikacją HomeOS")
+    parser = argparse.ArgumentParser(description="Zarządzanie aplikacją annotio")
     subparsers = parser.add_subparsers(dest="command")
 
     # Rejestracja podkomendy reset-password

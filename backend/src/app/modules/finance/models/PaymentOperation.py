@@ -26,7 +26,7 @@ class PaymentOperation(SQLModel, table=True):
     provider: str = Field(default="manual", max_length=50)
     provider_reference: str | None = Field(default=None, unique=True, index=True)
     idempotency_key: str | None = Field(default=None, unique=True, index=True)
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=datetime.now)
     completed_at: datetime | None = Field(default=None)
 
 

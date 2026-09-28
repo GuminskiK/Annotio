@@ -32,7 +32,7 @@ class TransactionBase(SQLModel):
 
 class Transaction(TransactionBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    created_at: datetime = Field(default_factory=datetime.utcnow, index=True)
+    created_at: datetime = Field(default_factory=datetime.now, index=True)
     wallet: "Wallet" = Relationship(back_populates="transactions")
 
 

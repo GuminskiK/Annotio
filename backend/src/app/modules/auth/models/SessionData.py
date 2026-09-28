@@ -2,7 +2,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from app.modules.auth.models.Users import Role
+from src.app.modules.auth.models.Users import Role
 
 
 class SessionData(BaseModel):

@@ -53,7 +53,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = useCallback(async (username: string, password: string) => {
     const response = await loginApi(username, password);
 
-    if ( response.status === 200) {
+    if (response?.message === 'Logged in successfully!') {
       await fetchUserProfile();
     }
     return response;

@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dialog"
 import { QRCodeSVG } from "qrcode.react" // Opcjonalnie do generowania QR po stronie klienta z otpauth URI
 import { useAuth } from "@/context/AuthContext"
+import { Check, Copy } from "lucide-react"
 
 export default function ProfileSettings() {
   const formRef = useRef<HTMLFormElement>(null)
@@ -31,11 +32,13 @@ export default function ProfileSettings() {
   // Stany procesu 2FA
   const [isTotpEnabledState, setIsTotpEnabledState] = useState(is_totp_enabled)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [totpStep, setTotpStep] = useState<"setup" | "disable">("setup")
+  const [totpStep, setTotpStep] = useState<"setup" | "disable" | "backup">("setup")
   const [qrCodeUri, setQrCodeUri] = useState<string>("")
   const [secretKey, setSecretKey] = useState<string>("")
   const [totpCode, setTotpCode] = useState("")
   const [isSubmitting2FA, setIsSubmitting2FA] = useState(false)
+  const [backupCodes, setBackupCodes] = useState<string[]>([])
+  const [codesCopied, setCodesCopied] = useState(false)
 
   // Ocena siły hasła
   const getPasswordStrength = (pass: string) => {
@@ -92,15 +95,20 @@ export default function ProfileSettings() {
 
     try {
       if (totpStep === "setup") {
-        await enable2FA(totpCode)
+        const response = await enable2FA(totpCode)
         setIsTotpEnabledState(true)
+        setBackupCodes(response.backup_codes || [])
+        setCodesCopied(false)
+        setTotpStep("backup")
         toast.success("Weryfikacja dwuetapowa została pomyślnie włączona!")
       } else {
         await disable2FA(totpCode)
         setIsTotpEnabledState(false)
         toast.success("Weryfikacja dwuetapowa została wyłączona.")
       }
-      setIsModalOpen(false)
+      if (totpStep !== "backup") {
+        setIsModalOpen(false)
+      }
     } catch (error: any) {
       console.error("2FA Action failed:", error)
       toast.error(error.response?.data?.detail || "Niepoprawny kod 2FA. Spróbuj ponownie.")
@@ -264,16 +272,25 @@ export default function ProfileSettings() {
       </div>
 
       {/* MODAL / DIALOG DLA AKCJI 2FA */}
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+      <Dialog open={isModalOpen} onOpenChange={(open) => {
+        setIsModalOpen(open)
+        if (!open) {
+          setBackupCodes([])
+          setCodesCopied(false)
+          setTotpStep("setup")
+        }
+      }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {totpStep === "setup" ? "Konfiguracja Weryfikacji Dwuetapowej" : "Wyłączanie 2FA"}
+              {totpStep === "setup" ? "Konfiguracja Weryfikacji Dwuetapowej" : totpStep === "backup" ? "Zapisz kody zapasowe" : "Wyłączanie 2FA"}
             </DialogTitle>
             <DialogDescription>
               {totpStep === "setup"
                 ? "Zeskanuj kod QR w aplikacji uwierzytelniającej (np. Google Authenticator), a następnie wprowadź wygenerowany kod."
-                : "Aby potwierdzić wyłączenie weryfikacji dwuetapowej, wprowadź aktualny kod z aplikacji."}
+                : totpStep === "backup"
+                  ? "Zapisz te kody w bezpiecznym miejscu. Zostaną wyświetlone tylko raz i nie są przechowywane w przeglądarce."
+                  : "Aby potwierdzić wyłączenie weryfikacji dwuetapowej, wprowadź aktualny kod z aplikacji."}
             </DialogDescription>
           </DialogHeader>
 
@@ -289,7 +306,20 @@ export default function ProfileSettings() {
               </div>
             )}
 
-            <Field className="w-full">
+            {totpStep === "backup" ? (
+              <div className="w-full space-y-4">
+                <div className="grid grid-cols-2 gap-2 rounded-md border bg-muted/40 p-4 font-mono text-sm">
+                  {backupCodes.map((backupCode) => <span key={backupCode}>{backupCode}</span>)}
+                </div>
+                <Button className="w-full" variant="outline" onClick={async () => {
+                  await navigator.clipboard.writeText(backupCodes.join("\n"))
+                  setCodesCopied(true)
+                }}>
+                  {codesCopied ? <Check className="mr-2 h-4 w-4" /> : <Copy className="mr-2 h-4 w-4" />}
+                  {codesCopied ? "Skopiowano" : "Kopiuj wszystkie kody"}
+                </Button>
+              </div>
+            ) : <Field className="w-full">
               <FieldLabel htmlFor="totp-code" className="text-center block">
                 Kod weryfikacyjny TOTP
               </FieldLabel>
@@ -303,20 +333,20 @@ export default function ProfileSettings() {
                 value={totpCode}
                 onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, ""))}
               />
-            </Field>
+            </Field>}
           </div>
 
           <DialogFooter className="flex gap-2 sm:justify-end">
             <Button variant="outline" onClick={() => setIsModalOpen(false)}>
               Anuluj
             </Button>
-            <Button
+            {totpStep !== "backup" && <Button
               onClick={handleConfirm2FA}
               disabled={totpCode.length !== 6 || isSubmitting2FA}
               variant={totpStep === "disable" ? "destructive" : "default"}
             >
               {isSubmitting2FA ? "Weryfikacja..." : totpStep === "setup" ? "Włącz 2FA" : "Wyłącz 2FA"}
-            </Button>
+            </Button>}
           </DialogFooter>
         </DialogContent>
       </Dialog>

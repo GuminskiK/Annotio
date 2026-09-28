@@ -11,7 +11,7 @@ class IdempotencyKey(SQLModel, table=True):
     response_code: int
     response_body: str
     
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=datetime.now)
     expires_at: datetime = Field(
-        default_factory=lambda: datetime.utcnow() + timedelta(hours=24)
+        default_factory=lambda: datetime.now() + timedelta(hours=24)
     )

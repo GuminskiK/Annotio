@@ -25,16 +25,16 @@ from src.app.modules.auth.models.Tokens import TokenTypes
 from src.app.modules.auth.models.Users import User, UserCreate, UserUpdate
 from src.app.modules.auth.utils.auth_utils import get_password_hash
 from src.app.modules.finance.models.Wallet import Wallet
-from utils.jwt import create_token, decode_token
-from utils.users_utils import (
+from src.app.modules.auth.utils.jwt import create_token, decode_token
+from src.app.modules.auth.utils.users_utils import (
     get_blind_index,
     get_user_by_email,
     get_user_by_id,
     get_user_by_username,
 )
 
-from services.email_service import send_activation_email, send_password_reset_email
-from services.session_service import deleteSession, getSessionsByUserId, updateSession
+from src.app.modules.auth.services.email_service import send_activation_email, send_password_reset_email
+from src.app.modules.auth.services.session_service import deleteSession, getSessionsByUserId, updateSession
 
 logger = get_logger(__name__)
 

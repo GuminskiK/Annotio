@@ -14,7 +14,7 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 5173,
-    allowedHosts: ['frontend', 'localhost','homeos-frontend'],
+    allowedHosts: ['frontend', 'localhost','annotio-frontend'],
     watch: {
       usePolling: true,
     },

@@ -1,14 +1,20 @@
 import hashlib
+from typing import Any, cast
 from uuid import UUID
 
 from sqlmodel import select
+from sqlalchemy.orm import selectinload
 from src.app.core.config import settings
 from src.app.deps.dbs import db_session
 from src.app.modules.auth.models.Users import User
 
 
 async def get_user_by_id(session: db_session, id: UUID) -> User | None:
-    result = await session.exec(select(User).where(User.id == id))
+    result = await session.exec(
+        select(User)
+        .options(selectinload(cast(Any, User.backup_codes)))
+        .where(User.id == id)
+    )
     user = result.one_or_none()
     return user
 
