@@ -16,6 +16,7 @@ async def createSession(
     response: Response,
     user: User,
     redis: redis.Redis,
+    remember_me: bool = False,
 ) -> None:
 
     generated_session_id = str(uuid4())
@@ -37,23 +38,25 @@ async def createSession(
         username=user.username,
         role = user.role,
         is_totp_enabled=user.is_totp_enabled,
+        remember_me=remember_me,
 
         avatar_url=user.avatar_url
     )
 
     redis_key = f"session:{generated_session_id}"
     redis_user_key = f"user_session:{user.id}"
+    session_ttl = settings.SESSION_REMEMBER_TTL if remember_me else settings.SESSION_TTL
 
     await redis.set(
         name=redis_key,
         value=user_session.model_dump_json(),
-        ex=settings.SESSION_TTL
+        ex=session_ttl
     )
 
     response.set_cookie(
         key=settings.SESSION_COOKIE_NAME,
         value=generated_session_id,
-        max_age=settings.SESSION_TTL,
+        max_age=session_ttl,
         httponly=settings.SESSION_HTTP_ONLY,
         secure=settings.SESSION_SECURE,
         samesite=settings.SESSION_SAME_SITE
@@ -109,7 +112,8 @@ async def updateSession(
         session_data = SessionData(**json.loads(session_data_raw))
         for key, value in updated_data.items():
             setattr(session_data, key, value)
-        await redis.set(f"session:{session_id}", session_data.model_dump_json(), ex=3600)
+        session_ttl = settings.SESSION_REMEMBER_TTL if session_data.remember_me else settings.SESSION_TTL
+        await redis.set(f"session:{session_id}", session_data.model_dump_json(), ex=session_ttl)
 
 
 async def deleteSession(

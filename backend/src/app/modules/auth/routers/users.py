@@ -29,7 +29,7 @@ router = APIRouter(prefix="/users", tags=["users"])
 
 @router.post("", response_model=UserRead, status_code=201)
 async def post_user(
-    session: db_session, user: UserCreate, admin: AdminUser, background_tasks: BackgroundTasks
+    session: db_session, user: UserCreate, background_tasks: BackgroundTasks
 ):
 
     return await create_user(session, user, background_tasks)
@@ -114,11 +114,10 @@ async def forgot_password(session: db_session, background_tasks: BackgroundTasks
 
     await send_change_password_mail(session, email, background_tasks)
 
-    return {"message": "Jeśli to konto instnieje, wysłaliśmy instrukcje resetu hasła na wskazany adres e-mail."}
+    return {"message": "If an account with that email exists, a password reset link has been sent."}
 
 @router.patch("/change_password/{password_change_token}")
 async def patch_password(session: db_session, password_change_token: str, payload: NewPasswordModel):
 
     await change_password(session, password_change_token, payload.plain_password)
-
-    return {"message": "Hasło zostało pomyślnie zmienione."}
+    return {"message": "Password has been successfully changed."}

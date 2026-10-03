@@ -19,7 +19,7 @@ import {
 import { QRCodeSVG } from "qrcode.react" // Opcjonalnie do generowania QR po stronie klienta z otpauth URI
 import { useAuth } from "@/context/AuthContext"
 import { Check, Copy } from "lucide-react"
-
+import { PasswordRequirements } from "@/components/custom/PasswordRequirements"
 export default function ProfileSettings() {
   const formRef = useRef<HTMLFormElement>(null)
   const { user } = useAuth();
@@ -27,7 +27,7 @@ export default function ProfileSettings() {
 
   // Stany formularza profilu
   const [errors, setErrors] = useState({ username: "", password: "", confirmPassword: "" })
-  const [passwordValue, setPasswordValue] = useState("")
+  const [password, setPassword] = useState("")
 
   // Stany procesu 2FA
   const [isTotpEnabledState, setIsTotpEnabledState] = useState(is_totp_enabled)
@@ -40,26 +40,13 @@ export default function ProfileSettings() {
   const [backupCodes, setBackupCodes] = useState<string[]>([])
   const [codesCopied, setCodesCopied] = useState(false)
 
-  // Ocena siły hasła
-  const getPasswordStrength = (pass: string) => {
-    let score = 0
-    if (!pass) return score
-    if (pass.length >= 8) score += 1
-    if (/[a-z]/.test(pass)) score += 1
-    if (/[A-Z]/.test(pass)) score += 1
-    if (/[0-9]/.test(pass)) score += 1
-    if (/[^a-zA-Z0-9]/.test(pass)) score += 1
-    return score
+  const closeTwoFactorModal = () => {
+    setIsModalOpen(false)
+    setBackupCodes([])
+    setCodesCopied(false)
+    setTotpStep("setup")
   }
 
-  const strengthScore = getPasswordStrength(passwordValue)
-
-  const getStrengthColor = (score: number) => {
-    if (score === 0) return "bg-transparent"
-    if (score <= 2) return "bg-destructive"
-    if (score <= 4) return "bg-yellow-500"
-    return "bg-green-500"
-  }
 
   // --- OBSŁUGA 2FA ---
 
@@ -106,7 +93,7 @@ export default function ProfileSettings() {
         setIsTotpEnabledState(false)
         toast.success("Weryfikacja dwuetapowa została wyłączona.")
       }
-      if (totpStep !== "backup") {
+      if (totpStep === "disable") {
         setIsModalOpen(false)
       }
     } catch (error: any) {
@@ -164,15 +151,15 @@ export default function ProfileSettings() {
       return
     }
 
-    const payload: { username?: string; password?: string } = {}
+    const payload: { username?: string; plain_password?: string } = {}
     if (username) payload.username = username
-    if (password) payload.password = password
+    if (password) payload.plain_password = password
 
     toast.promise(updateUser(payload), {
       loading: "Aktualizowanie profilu...",
       success: () => {
         formRef.current?.reset()
-        setPasswordValue("")
+        setPassword("")
         return "Profil zaktualizowany pomyślnie."
       },
       error: () => "Nie udało się zaktualizować profilu.",
@@ -181,7 +168,7 @@ export default function ProfileSettings() {
 
   const handleReset = () => {
     setErrors({ username: "", password: "", confirmPassword: "" })
-    setPasswordValue("")
+    setPassword("")
   }
 
   return (
@@ -204,28 +191,12 @@ export default function ProfileSettings() {
             <PasswordInput
               id="password"
               name="password"
-              value={passwordValue}
-              onChange={(e) => setPasswordValue(e.target.value)}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className={cn(errors.password && "border-destructive focus-visible:ring-destructive")}
             />
 
-            {passwordValue && (
-              <div className="mt-2 flex flex-col gap-2">
-                <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
-                  <div
-                    className={cn("h-full transition-all duration-300 ease-out", getStrengthColor(strengthScore))}
-                    style={{ width: `${(strengthScore / 5) * 100}%` }}
-                  />
-                </div>
-                <ul className="text-xs text-muted-foreground grid grid-cols-2 gap-1">
-                  <li className={passwordValue.length >= 8 ? "text-green-500" : ""}>✓ Min. 8 znaków</li>
-                  <li className={/[A-Z]/.test(passwordValue) ? "text-green-500" : ""}>✓ Duża litera</li>
-                  <li className={/[a-z]/.test(passwordValue) ? "text-green-500" : ""}>✓ Mała litera</li>
-                  <li className={/[0-9]/.test(passwordValue) ? "text-green-500" : ""}>✓ Cyfra</li>
-                  <li className={/[^a-zA-Z0-9]/.test(passwordValue) ? "text-green-500" : ""}>✓ Znak specjalny</li>
-                </ul>
-              </div>
-            )}
+            <PasswordRequirements password={password} inputId="register-password" />
 
             {errors.password && <p className="text-sm text-destructive mt-1">{errors.password}</p>}
           </Field>
@@ -236,7 +207,7 @@ export default function ProfileSettings() {
               id="confirm-password"
               name="confirm-password"
               className={cn(errors.confirmPassword && "border-destructive focus-visible:ring-destructive")}
-              disabled={!passwordValue}
+              disabled={!password}
             />
             {errors.confirmPassword && <p className="text-sm text-destructive mt-1">{errors.confirmPassword}</p>}
           </Field>
@@ -273,11 +244,10 @@ export default function ProfileSettings() {
 
       {/* MODAL / DIALOG DLA AKCJI 2FA */}
       <Dialog open={isModalOpen} onOpenChange={(open) => {
-        setIsModalOpen(open)
-        if (!open) {
-          setBackupCodes([])
-          setCodesCopied(false)
-          setTotpStep("setup")
+        if (open) {
+          setIsModalOpen(true)
+        } else {
+          closeTwoFactorModal()
         }
       }}>
         <DialogContent className="sm:max-w-md">
@@ -337,7 +307,7 @@ export default function ProfileSettings() {
           </div>
 
           <DialogFooter className="flex gap-2 sm:justify-end">
-            <Button variant="outline" onClick={() => setIsModalOpen(false)}>
+            <Button variant="outline" onClick={closeTwoFactorModal}>
               Anuluj
             </Button>
             {totpStep !== "backup" && <Button

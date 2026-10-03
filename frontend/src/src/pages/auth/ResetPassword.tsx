@@ -5,6 +5,7 @@ import { changePasswordApi } from "@/api/auth/auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PasswordInput } from "@/components/custom/PasswordInput";
+import { PasswordRequirements, passwordRequirements } from "@/components/custom/PasswordRequirements";
 import { Label } from "@/components/ui/label";
 
 export default function ResetPassword() {
@@ -24,6 +25,10 @@ export default function ResetPassword() {
     }
     if (password !== confirmation) {
       setError("Hasła nie są identyczne.");
+      return;
+    }
+    if (!passwordRequirements.every((requirement) => requirement.test(password))) {
+      setError("Hasło nie spełnia wszystkich wymagań bezpieczeństwa.");
       return;
     }
     try {
@@ -46,7 +51,7 @@ export default function ResetPassword() {
             <div className="space-y-4 text-sm"><p>{message}</p><Link className="text-primary underline underline-offset-4" to="/login">Przejdź do logowania</Link></div>
           ) : (
             <form className="space-y-5" onSubmit={handleSubmit}>
-              <div className="grid gap-2"><Label htmlFor="new-password">Nowe hasło</Label><PasswordInput id="new-password" value={password} onChange={(event) => setPassword(event.target.value)} required /></div>
+              <div className="grid gap-2"><Label htmlFor="new-password">Nowe hasło</Label><PasswordInput id="new-password" value={password} onChange={(event) => setPassword(event.target.value)} required /><PasswordRequirements password={password} inputId="new-password" /></div>
               <div className="grid gap-2"><Label htmlFor="confirm-password">Powtórz hasło</Label><PasswordInput id="confirm-password" value={confirmation} onChange={(event) => setConfirmation(event.target.value)} required /></div>
               {error && <p className="text-sm text-destructive">{error}</p>}
               <Button className="w-full" type="submit">Zmień hasło</Button>

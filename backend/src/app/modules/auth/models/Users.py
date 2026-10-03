@@ -16,16 +16,16 @@ USERNAME_PATTERN = r"^[a-zA-Z0-9_\-]+$"
 def validate_password_strength(v: str) -> str:
     if not v:
         return v
-    if len(v) < 8:
-        raise ValueError("Hasło musi mieć co najmniej 8 znaków")
+    if len(v) < 12:
+        raise ValueError("At least 12 characters long")
     if not any(c.isupper() for c in v):
-        raise ValueError("Hasło musi posiadać przynajmniej jedną dużą literę")
+        raise ValueError("Must contain at least one uppercase letter")
     if not any(c.islower() for c in v):
-        raise ValueError("Hasło musi posiadać przynajmniej jedną małą literę")
+        raise ValueError("Must contain at least one lowercase letter")
     if not any(c.isdigit() for c in v):
-        raise ValueError("Hasło musi posiadać przynajmniej jedną cyfrę")
+        raise ValueError("Must conatin at least one special character")
     if not any(not c.isalnum() for c in v):
-        raise ValueError("Hasło musi posiadać przynajmniej jeden znak specjalny")
+        raise ValueError("Must contain at least one digit")
     return v
 
 class Role (Enum):
@@ -78,7 +78,7 @@ class UserUpdate(SQLModel):
     username: str | None = Field(default=None, min_length=3, max_length=40, regex=USERNAME_PATTERN)
     plain_password: str | None = None
     is_blocked: bool | None = None
-    email: EmailStr | None = Field(unique=True)
+    email: EmailStr | None = Field(default=None, unique=True)
 
     @field_validator("plain_password")
     @classmethod

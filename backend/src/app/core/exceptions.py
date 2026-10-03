@@ -149,7 +149,7 @@ class Required2FACodeException(UnauthorizedException):
 
 class InvalidCredentialsException(UnauthorizedException):
     def __init__(self, detail: str = "Unauthorized"):
-        super().__init__(detail="Invalid credentials")
+        super().__init__(detail=detail if detail != "Unauthorized" else "Invalid credentials")
 
 class RefreshTokenReuseException(UnauthorizedException):
     def __init__(self, detail: str = "Unauthorized"):

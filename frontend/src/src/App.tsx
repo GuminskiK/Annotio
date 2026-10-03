@@ -19,6 +19,7 @@ import { Toaster } from "sonner";
 import ForgotPassword from './pages/auth/ForgotPassword.tsx';
 import ResetPassword from './pages/auth/ResetPassword.tsx';
 import ActivateAccount from './pages/auth/ActivateAccount.tsx';
+import Register from './pages/auth/Register.tsx';
 const App = () => {
   return (
     <AuthProvider>
@@ -30,6 +31,7 @@ const App = () => {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/activate" element={<ActivateAccount />} />
+          <Route path="/register" element={<Register />} />
           
           <Route element={<ProtectedRoute />}>
             

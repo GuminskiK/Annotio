@@ -43,13 +43,18 @@ class AuthDependency:
                 raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Sesja wygasła lub nie istnieje")
             
             session_data = SessionData(**json.loads(session_raw))
-            
-            await self.redis.expire(redis_key, self.SESSION_TTL)
+
+            session_ttl = (
+                settings.SESSION_REMEMBER_TTL
+                if session_data.remember_me
+                else self.SESSION_TTL
+            )
+            await self.redis.expire(redis_key, session_ttl)
             
             response.set_cookie(
                 key=self.session_cookie_name,
                 value=session_id,
-                max_age=self.SESSION_TTL,
+                max_age=session_ttl,
                 httponly=True,
                 secure=False,
                 samesite="lax"

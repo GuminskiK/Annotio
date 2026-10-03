@@ -33,8 +33,8 @@ export default function ForgotPassword() {
         <CardContent>
           {sent ? (
             <div className="space-y-4 text-sm">
-              <p>Jeśli konto istnieje, wysłaliśmy instrukcję resetu hasła.</p>
-              <Link className="text-primary underline underline-offset-4" to="/login">Wróć do logowania</Link>
+              <p>If the account exists, a password reset link has been sent to the provided email address.</p>
+              <Link className="text-primary underline underline-offset-4" to="/login">Go to login</Link>
             </div>
           ) : (
             <form className="space-y-5" onSubmit={handleSubmit}>
@@ -43,8 +43,8 @@ export default function ForgotPassword() {
                 <Input id="reset-email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
               </div>
               {error && <p className="text-sm text-destructive">{error}</p>}
-              <Button className="w-full" type="submit">Wyślij link resetujący</Button>
-              <Link className="block text-center text-sm text-primary underline underline-offset-4" to="/login">Wróć do logowania</Link>
+              <Button className="w-full" type="submit">Send reset link</Button>
+              <Link className="block text-center text-sm text-primary underline underline-offset-4" to="/login">Go to login</Link>
             </form>
           )}
         </CardContent>

@@ -7,13 +7,14 @@ import { updateUserAdmin } from "@/api/auth/users"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { useParams } from 'react-router-dom';
+import { PasswordRequirements } from "@/components/custom/PasswordRequirements"
 
 export default function ProfileSettings() {
     const formRef = useRef<HTMLFormElement>(null)
 
     // Stany formularza profilu
     const [errors, setErrors] = useState({ username: "", password: "", confirmPassword: "" })
-    const [passwordValue, setPasswordValue] = useState("")
+    const [password, setPassword] = useState("")
 
     const { id } = useParams();
     // Ocena siły hasła
@@ -28,14 +29,7 @@ export default function ProfileSettings() {
         return score
     }
 
-    const strengthScore = getPasswordStrength(passwordValue)
-
-    const getStrengthColor = (score: number) => {
-        if (score === 0) return "bg-transparent"
-        if (score <= 2) return "bg-destructive"
-        if (score <= 4) return "bg-yellow-500"
-        return "bg-green-500"
-    }
+    const strengthScore = getPasswordStrength(password)
 
     // --- UPDATE PROFILU ---
 
@@ -97,7 +91,7 @@ export default function ProfileSettings() {
         loading: "Aktualizowanie profilu...",
         success: () => {
             formRef.current?.reset()
-            setPasswordValue("")
+            setPassword("")
             return "Profil zaktualizowany pomyślnie."
         },
         error: () => "Nie udało się zaktualizować profilu.",
@@ -106,7 +100,7 @@ export default function ProfileSettings() {
 
   const handleReset = () => {
     setErrors({ username: "", password: "", confirmPassword: "" })
-    setPasswordValue("")
+    setPassword("")
   }
 
   return (
@@ -129,29 +123,11 @@ export default function ProfileSettings() {
             <PasswordInput
               id="password"
               name="password"
-              value={passwordValue}
-              onChange={(e) => setPasswordValue(e.target.value)}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className={cn(errors.password && "border-destructive focus-visible:ring-destructive")}
             />
-
-            {passwordValue && (
-              <div className="mt-2 flex flex-col gap-2">
-                <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
-                  <div
-                    className={cn("h-full transition-all duration-300 ease-out", getStrengthColor(strengthScore))}
-                    style={{ width: `${(strengthScore / 5) * 100}%` }}
-                  />
-                </div>
-                <ul className="text-xs text-muted-foreground grid grid-cols-2 gap-1">
-                  <li className={passwordValue.length >= 8 ? "text-green-500" : ""}>✓ Min. 8 znaków</li>
-                  <li className={/[A-Z]/.test(passwordValue) ? "text-green-500" : ""}>✓ Duża litera</li>
-                  <li className={/[a-z]/.test(passwordValue) ? "text-green-500" : ""}>✓ Mała litera</li>
-                  <li className={/[0-9]/.test(passwordValue) ? "text-green-500" : ""}>✓ Cyfra</li>
-                  <li className={/[^a-zA-Z0-9]/.test(passwordValue) ? "text-green-500" : ""}>✓ Znak specjalny</li>
-                </ul>
-              </div>
-            )}
-
+            <PasswordRequirements password={password} inputId="register-password" />
             {errors.password && <p className="text-sm text-destructive mt-1">{errors.password}</p>}
           </Field>
 
@@ -161,7 +137,7 @@ export default function ProfileSettings() {
               id="confirm-password"
               name="confirm-password"
               className={cn(errors.confirmPassword && "border-destructive focus-visible:ring-destructive")}
-              disabled={!passwordValue}
+              disabled={!password}
             />
             {errors.confirmPassword && <p className="text-sm text-destructive mt-1">{errors.confirmPassword}</p>}
           </Field>

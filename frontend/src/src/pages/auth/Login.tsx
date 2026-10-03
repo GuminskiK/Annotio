@@ -19,7 +19,7 @@ export default function Login() {
   
   // Stany do obsługi dwuetapowego logowania
   const [step, setStep] = useState<1 | 2>(1);
-  const [credentials, setCredentials] = useState({ username: '', password: '', mfaToken: '' });
+  const [credentials, setCredentials] = useState({ username: '', password: '', mfaToken: '', rememberMe: false });
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -36,12 +36,13 @@ export default function Login() {
     if (step === 1) {
       const username = formData.get("username") as string;
       const password = formData.get("password") as string;
+      const rememberMe = formData.get("remember_me") === "on";
       
       try {
 
-        setCredentials({ username, password, mfaToken: '' });
+        setCredentials({ username, password, mfaToken: '', rememberMe });
         
-        const response = await login(username, password);
+        const response = await login(username, password, rememberMe);
 
         if (response?.message === 'Logged in successfully!') {
           navigate('/dashboard'); 
@@ -60,7 +61,7 @@ export default function Login() {
       const mfaCode = formData.get("mfa_code") as string;
       
       try {
-        const response = await loginMfa(mfaCode, credentials.mfaToken);
+        const response = await loginMfa(mfaCode, credentials.mfaToken, credentials.rememberMe);
         if (response?.message === 'Logged in successfully!') {
           navigate('/dashboard'); 
         }
@@ -76,7 +77,7 @@ export default function Login() {
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>
-            <div className="text-2xl font-bold text-center">Annotio</div>
+            <div className="text-2xl font-bold text-center mb-2">Annotio</div>
           </CardTitle>
           {step === 2 && (
             <CardDescription className="text-center mt-2">
@@ -97,6 +98,7 @@ export default function Login() {
               {step === 1 ? (
                 // --- KROK 1: LOGIN I HASŁO ---
                 <>
+
                   <div className="grid gap-2">
                     <Label htmlFor="username">Username</Label>
                     <Input
@@ -107,13 +109,7 @@ export default function Login() {
                       required
                     />
                   </div>
-                  <button
-                    type="button"
-                    className="text-sm text-primary underline underline-offset-4 text-left"
-                    onClick={() => navigate('/forgot-password')}
-                  >
-                    Nie pamiętam hasła
-                  </button>
+
                   <div className="grid gap-2">
                     <Label htmlFor="password">Password</Label>
                     <PasswordInput 
@@ -122,6 +118,28 @@ export default function Login() {
                       required 
                     />
                   </div>
+
+                  <div className="flex flex-row justify-between items-center gap-2">                  
+                    <label className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <input
+                        type="checkbox"
+                        name="remember_me"
+                        className="h-4 w-4 accent-primary"
+                      />
+                      Remember for 30 days
+                    </label>
+                    
+                    <button
+                      type="button"
+                      className="text-sm text-primary underline underline-offset-4 text-left"
+                      onClick={() => navigate('/forgot-password')}
+                    >
+                      Forgot password
+                    </button>
+
+
+                  </div>
+
                 </>
               ) : (
                 // --- KROK 2: KOD 2FA ---
@@ -141,10 +159,30 @@ export default function Login() {
                 </div>
               )}
             </div>
+            
+            { step === 1 ? (
+              <>
+                <Button type="submit" className="w-full self-center mt-6">
+                  Sign in
+                </Button>
 
-            <Button type="submit" className="w-full self-center mt-6">
-              {step === 1 ? "Zaloguj się" : "Weryfikuj kod"}
-            </Button>
+                <div className="text-sm text-muted-foreground text-center mt-2">
+                  Don't have an account?{" "}
+                  <button
+                    type="button"
+                    className="text-primary underline"
+                    onClick={() => navigate('/register')}
+                  >
+                    Sign up
+                  </button>
+                </div>
+              </>
+              ) : (
+                <Button type="submit" className="w-full self-center mt-6">
+                  Verify code
+                </Button>
+              )
+            }
             
             {step === 2 && (
               <Button 

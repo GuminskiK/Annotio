@@ -77,13 +77,14 @@ export default function ManageUsers() {
     }
   };
 
-  const handleCreateUser = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleCreateUser = async (event: React.SubmitEvent) => {
     event.preventDefault()
     setErrors({ username: "", password: "", confirmPassword: "" })
 
-    const formData = new FormData(event.currentTarget)
+    const formData = new FormData(event.currentTarget as HTMLFormElement)
     // Poprawiono klucz na "username" z "name"
     const username = formData.get("username") as string 
+    const email = formData.get("email") as string
     const password = formData.get("password") as string
     const confirmPassword = formData.get("confirm-password") as string
 
@@ -125,6 +126,7 @@ export default function ManageUsers() {
     // Dopasowanie do interfejsu UserCreateData
     const payload: UserCreateData = {
       username: username,
+      email,
       plain_password: password
     }
 
@@ -231,6 +233,11 @@ export default function ManageUsers() {
                     <Label htmlFor="username">Username</Label>
                     <Input id="username" name="username" placeholder="Username" required />
                     {errors.username && <p className="text-xs text-destructive mt-1">{errors.username}</p>}
+                  </Field>
+
+                  <Field>
+                    <Label htmlFor="email">Email</Label>
+                    <Input id="email" name="email" type="email" placeholder="user@example.com" required />
                   </Field>
                   
                   <Field>

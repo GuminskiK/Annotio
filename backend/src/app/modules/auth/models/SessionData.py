@@ -15,6 +15,7 @@ class SessionData(BaseModel):
     username: str
     role: Role
     is_totp_enabled: bool = False
+    remember_me: bool = False
     # is_banned: bool = False
 
     avatar_url: str | None = None

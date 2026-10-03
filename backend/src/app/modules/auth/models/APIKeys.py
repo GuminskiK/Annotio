@@ -15,7 +15,7 @@ class APIKey(SQLModel, table=True):
     hashed_key: str = Field(unique=True, index=True, nullable=False)
     key_hint: str
 
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     last_used_at: datetime | None = Field(default=None)
 
     user_id: UUID = Field(foreign_key="user.id")

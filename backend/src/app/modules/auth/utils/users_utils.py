@@ -13,6 +13,7 @@ async def get_user_by_id(session: db_session, id: UUID) -> User | None:
     result = await session.exec(
         select(User)
         .options(selectinload(cast(Any, User.backup_codes)))
+        .options(selectinload(cast(Any, User.wallet)))
         .where(User.id == id)
     )
     user = result.one_or_none()

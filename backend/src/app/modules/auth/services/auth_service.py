@@ -1,4 +1,5 @@
 import asyncio
+import json
 import secrets
 from uuid import UUID
 
@@ -28,6 +29,7 @@ async def login(
     redis: redis.Redis,
     session: AsyncSession,
     form_data: OAuth2PasswordRequestForm = Depends(),
+    remember_me: bool = False,
 ):
 
     await asyncio.sleep(1)
@@ -44,13 +46,17 @@ async def login(
 
     if not user.is_activated:
         logger.warning("inactive_user_login_attempt", username=form_data.username)
-        raise InvalidCredentialsException(detail="Konto nieaktywne")
+        raise InvalidCredentialsException(detail="Please activate your account")
 
     if user.is_totp_enabled:
 
         mfa_token = secrets.token_urlsafe(32)
 
-        await redis.setex(f"mfa_pending:{mfa_token}", 300, str(user.id))
+        await redis.setex(
+            f"mfa_pending:{mfa_token}",
+            300,
+            json.dumps({"user_id": str(user.id), "remember_me": remember_me}),
+        )
 
         logger.info("2fa_required_for_login", user_id=str(user.id))
 
@@ -62,7 +68,7 @@ async def login(
             "message": "Podaj kod 2FA"
         }
 
-    await createSession(request, response, user, redis)
+    await createSession(request, response, user, redis, remember_me=remember_me)
 
     logger.info("user_logged_in", user_id=str(user.id), uuid=str(user.id))
 
@@ -76,12 +82,19 @@ async def login_mfa(
     session: AsyncSession,
     mfa_token: str,
     mfa_code: str,     
+    remember_me: bool = False,
 ):
     user_id = await redis.get(f"mfa_pending:{mfa_token}")
     if not user_id:
         raise InvalidCredentialsException(detail="Sesja 2FA wygasła lub jest nieprawidłowa")
 
     user_id_str = user_id.decode("utf-8") if isinstance(user_id, bytes) else user_id
+    try:
+        pending_data = json.loads(user_id_str)
+        user_id_str = pending_data["user_id"]
+        remember_me = bool(pending_data.get("remember_me", False))
+    except (json.JSONDecodeError, TypeError, KeyError):
+        pass
 
     user = await get_user_by_id(session, UUID(user_id_str))
 
@@ -109,13 +122,13 @@ async def login_mfa(
                 if verify_password(mfa_code, backup_code.code_hash):
                     await session.delete(backup_code)
                     await session.commit()
-                    await createSession(request, response, user, redis)
+                    await createSession(request, response, user, redis, remember_me=remember_me)
                     logger.info("user_logged_in_with_backup_code", user_id=str(user.id), uuid=str(user.id))
                     return {"message": "Logged in successfully!"}
 
         raise Invalid2FACodeException()
 
-    await createSession(request, response, user, redis)
+    await createSession(request, response, user, redis, remember_me=remember_me)
 
     logger.info("user_logged_in", user_id=str(user.id), uuid=str(user.id))
 

@@ -7,11 +7,12 @@ export interface User{
 
 export interface UserUpdateData {
     username?: string;
-    password?: string;
+  plain_password?: string;
 }
 
 export interface UserCreateData {
     username: string;
+  email: string;
     plain_password: string;
 }
 

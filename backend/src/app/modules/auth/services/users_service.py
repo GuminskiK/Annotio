@@ -65,7 +65,6 @@ async def create_user(
     session.add(db_user)
     await session.commit()
     await session.refresh(db_user)
-    await session.refresh(db_user.wallet)
     
     logger.info("user_created_succesfully", user_id=db_user.id)
 

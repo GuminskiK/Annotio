@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     SESSION_SECRET_KEY: str = "your-super-strategic-secret-key-change-this"
     SESSION_COOKIE_NAME: str = "session_id"
     SESSION_TTL: int = 3600  # seconds
+    SESSION_REMEMBER_TTL: int = 60 * 60 * 24 * 30  # 30 days
     SESSION_SAME_SITE: Literal['lax', 'strict', 'none'] = "lax"
     SESSION_HTTP_ONLY: bool = True
     SESSION_SECURE: bool = False

@@ -1,9 +1,10 @@
 import { api } from "@/api/axiosClient";
 
-export const loginApi = async (username: string, password: string) => {
+export const loginApi = async (username: string, password: string, rememberMe: boolean) => {
   const formData = new FormData();
   formData.append("username", username);
   formData.append("password", password);
+  formData.append("remember_me", String(rememberMe));
 
   const response = await api.post(
     '/api/auth/login',
@@ -14,10 +15,10 @@ export const loginApi = async (username: string, password: string) => {
   return response.data;
 };
 
-export const loginMfaApi = async (mfaCode: string, mfaToken: string) => {
+export const loginMfaApi = async (mfaCode: string, mfaToken: string, rememberMe: boolean) => {
   const response = await api.post(
     '/api/auth/login/mfa',
-    { mfa_code: mfaCode, mfa_token: mfaToken}
+    { mfa_code: mfaCode, mfa_token: mfaToken, remember_me: rememberMe }
   );
   return response.data;
 };

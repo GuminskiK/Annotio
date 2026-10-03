@@ -41,7 +41,7 @@ async def lifespan(app: FastAPI):
                     json.dumps({
                         "id": str(api_key.user_id),
                         "username": user.username,
-                        "role": user.role,
+                        "role": str(user.role),
                     }),
                 )
 

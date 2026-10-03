@@ -47,7 +47,7 @@ def create_token(
     jti = str(uuid.uuid4())
     
     to_encode = {
-        "id": user_id,
+        "id": str(user_id),
         "iat": int(_now().timestamp()),
         "exp": int(expire.timestamp()),
         "iss": APP_NAME,

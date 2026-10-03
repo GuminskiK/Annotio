@@ -34,15 +34,15 @@ async def send_activation_email(email_to: EmailStr, token: str):
     activation_link = f"{settings.FRONTEND_URL}/activate?token={token}"
     
     html_body = f"""
-    <h3>Witaj!</h3>
-    <p>Dziękujemy za rejestrację. Kliknij w poniższy link, aby aktywować swoje konto:</p>
+    <h3>Welcome to Annotio!</h3>
+    <p>Thank you for registering. Click the link below to activate your account:</p>
     <p><a href="{activation_link}">{activation_link}</a></p>
     <br>
-    <p>Link wygaśnie po 24 godzinach.</p>
+    <p>The link will expire in 24 hours.</p>
     """
 
     message = MessageSchema(
-        subject="Aktywuj swoje konto w aplikacji",
+        subject="Activate your Annotio account",
         recipients=[recipient(email_to)],
         body=html_body,
         subtype=MessageType.html
@@ -60,16 +60,16 @@ async def send_password_reset_email(email_to: EmailStr, token: str):
     reset_link = f"{settings.FRONTEND_URL}/reset-password?token={token}"
 
     html_body = f"""
-    <h3>Witaj!</h3>
-    <p>Otrzymaliśmy prośbę o zmianę hasła dla Twojego konta.</p>
-    <p>Kliknij w poniższy link, aby je zresetować:</p>
+    <h3>Reset your Annotio password</h3>
+    <p>We received a request to reset the password for your account.</p>
+    <p>Click the link below to reset it:</p>
     <p><a href="{reset_link}">{reset_link}</a></p>
     <br>
-    <p>Jeśli to nie Ty prosiłeś o zmianę, zignoruj tę wiadomość. Link wygaśnie po godzinie.</p>
+    <p>If this wasn't you, please ignore this message. The link will expire in one hour.</p>
     """
 
     message = MessageSchema(
-        subject="Reset hasła",
+        subject="Reset your Annotio password",
         recipients=[recipient(email_to)],
         body=html_body,
         subtype=MessageType.html
