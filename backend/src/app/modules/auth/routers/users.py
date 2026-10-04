@@ -1,7 +1,7 @@
 
 from uuid import UUID
 
-from fastapi import APIRouter, BackgroundTasks, Body, File, UploadFile
+from fastapi import APIRouter, BackgroundTasks, Body, File, Response, UploadFile
 from src.app.deps.dbs import db_session, redis_client
 from src.app.deps.users import AdminUser, CurrentUser
 from src.app.modules.auth.models.CurrentUserContext import CurrentUserContext
@@ -23,6 +23,8 @@ from src.app.modules.auth.services.users_service import (
     update_user,
     upload_avatar,
 )
+from src.app.core.storage import object_storage
+from fastapi.responses import Response as FileResponse
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -92,6 +94,15 @@ async def upload_avatar_route(
    
     result = await upload_avatar(redis, session, user, file)
     return result
+
+
+@router.get("/me/avatar")
+async def get_current_user_avatar(session: db_session, user: CurrentUser):
+    current_user = await fetch_user_by_id(session, user.user_id)
+    if not current_user.avatar_url:
+        return Response(status_code=404)
+    data, content_type = await object_storage.download(current_user.avatar_url)
+    return FileResponse(content=data, media_type=content_type)
 
 @router.patch("/change_role/{user_id}")
 async def patch_change_user_role(

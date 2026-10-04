@@ -11,6 +11,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      localstack:
+        condition: service_healthy
     restart: unless-stopped
     networks:
       - app-network
@@ -53,6 +55,26 @@ services:
       retries: 5
     volumes:
       - redis_data:/data
+    networks:
+      - app-network
+
+  localstack:
+    image: localstack/localstack:3.8.1
+    container_name: localstack
+    environment:
+      SERVICES: s3
+      AWS_DEFAULT_REGION: us-east-1
+      DEBUG: "0"
+    ports:
+      - "4566:4566"
+    volumes:
+      - localstack_data:/var/lib/localstack
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
     networks:
       - app-network
 
@@ -123,6 +145,7 @@ services:
 volumes:
   postgres_data:
   redis_data:
+  localstack_data:
 
 networks:
   app-network:

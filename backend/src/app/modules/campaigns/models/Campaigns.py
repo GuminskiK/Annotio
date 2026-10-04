@@ -33,7 +33,7 @@ class Campaign(CampaignBase, table = True):
     tasks: list["Task"] = Relationship(back_populates="campaign")
 
 class CampaignCreate(CampaignBase):
-    pass
+    client_id: uuid.UUID | None = None
 
 class CampaignRead(CampaignBase):
     id: uuid.UUID

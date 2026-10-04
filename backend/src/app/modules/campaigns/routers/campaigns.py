@@ -26,6 +26,11 @@ async def post_campaign(session: db_session, user: CurrentUser, campaign: Campai
 async def get_campaigns(session: db_session, user_id: UUID):
     return await fetch_user_campaigns(session, user_id)
 
+
+@router.get("/mine", response_model=list[CampaignRead])
+async def get_my_campaigns(session: db_session, user: CurrentUser):
+    return await fetch_user_campaigns(session, user.user_id)
+
 @router.get("/{campaign_id}", response_model=CampaignRead)
 async def get_campaign(session: db_session, campaign_id: UUID):
     return await fetch_campaign_by_id(session, campaign_id)

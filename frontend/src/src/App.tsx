@@ -20,6 +20,9 @@ import ForgotPassword from './pages/auth/ForgotPassword.tsx';
 import ResetPassword from './pages/auth/ResetPassword.tsx';
 import ActivateAccount from './pages/auth/ActivateAccount.tsx';
 import Register from './pages/auth/Register.tsx';
+import TasksPage from './pages/tasks/TasksPage.tsx';
+import TaskWizard from './pages/tasks/TaskWizard.tsx';
+import CampaignWizard from './pages/campaigns/CampaignWizard.tsx';
 const App = () => {
   return (
     <AuthProvider>
@@ -36,6 +39,9 @@ const App = () => {
           <Route element={<ProtectedRoute />}>
             
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/tasks" element={<TasksPage />} />
+            <Route path="/tasks/new" element={<TaskWizard />} />
+            <Route path="/campaigns/new" element={<CampaignWizard />} />
 
             <Route path="/admin" element={<AdminPanel />} />
  

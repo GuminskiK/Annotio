@@ -40,7 +40,7 @@ async def createSession(
         is_totp_enabled=user.is_totp_enabled,
         remember_me=remember_me,
 
-        avatar_url=user.avatar_url
+        avatar_url="/api/users/me/avatar" if user.avatar_url else None
     )
 
     redis_key = f"session:{generated_session_id}"

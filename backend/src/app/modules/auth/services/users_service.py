@@ -1,6 +1,5 @@
 from datetime import timedelta
-from pathlib import Path as FilePath
-from uuid import UUID, uuid4
+from uuid import UUID
 
 import redis.asyncio as redis
 from fastapi import BackgroundTasks, File, UploadFile
@@ -35,6 +34,7 @@ from src.app.modules.auth.utils.users_utils import (
 
 from src.app.modules.auth.services.email_service import send_activation_email, send_password_reset_email
 from src.app.modules.auth.services.session_service import deleteSession, getSessionsByUserId, updateSession
+from src.app.core.storage import object_storage
 
 logger = get_logger(__name__)
 
@@ -163,25 +163,17 @@ async def upload_avatar(
     if not file.content_type.startswith("image/"):
         raise WrongFileTypeException()
 
-    AVATARS_DIR = FilePath("/app/static/avatars")
-    AVATARS_DIR.mkdir(parents=True, exist_ok=True)
-
-    file_extension = file.filename.split(".")[-1]
-    new_filename = f"{uuid4()}.{file_extension}"
-    file_path = AVATARS_DIR / new_filename
-
-    contents = await file.read()
-    with open(file_path, "wb") as buffer:
-        buffer.write(contents)
-
-    avatar_url = f"/static/avatars/{new_filename}"
+    object_name = await object_storage.upload(
+        await file.read(), file.filename, file.content_type, prefix="avatars"
+    )
+    avatar_object_name = object_name
 
     current_user = await get_user_by_id(session, user.user_id)
     if not current_user:
         logger.warning("user_avatar_upload_failed_not_found", user_id=user.user_id)
         raise UserNotFoundException()
     
-    current_user.avatar_url = avatar_url
+    current_user.avatar_url = avatar_object_name
     session.add(current_user)
     await session.commit()
     await session.refresh(current_user)
@@ -192,10 +184,10 @@ async def upload_avatar(
 
     session_ids = await getSessionsByUserId(redis, current_user.id)
     for id in session_ids:
-        await updateSession(redis, id, {"avatar_url": avatar_url})
+        await updateSession(redis, id, {"avatar_url": "/api/users/me/avatar"})
         
     logger.info("user_avatar_uploaded_succesfully", user_id=user.user_id)
-    return {"avatar_url": avatar_url}
+    return {"avatar_url": "/api/users/me/avatar"}
 
 
 async def change_user_role(    

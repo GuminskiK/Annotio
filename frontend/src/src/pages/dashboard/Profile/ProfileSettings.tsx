@@ -19,7 +19,7 @@ import {
 import { QRCodeSVG } from "qrcode.react" // Opcjonalnie do generowania QR po stronie klienta z otpauth URI
 import { useAuth } from "@/context/AuthContext"
 import { Check, Copy } from "lucide-react"
-import { PasswordRequirements } from "@/components/custom/PasswordRequirements"
+import { PasswordRequirements, passwordRequirements } from "@/components/custom/PasswordRequirements"
 export default function ProfileSettings() {
   const formRef = useRef<HTMLFormElement>(null)
   const { user } = useAuth();
@@ -28,6 +28,7 @@ export default function ProfileSettings() {
   // Stany formularza profilu
   const [errors, setErrors] = useState({ username: "", password: "", confirmPassword: "" })
   const [password, setPassword] = useState("")
+  const strengthScore = passwordRequirements.filter((requirement) => requirement.test(password)).length
 
   // Stany procesu 2FA
   const [isTotpEnabledState, setIsTotpEnabledState] = useState(is_totp_enabled)
@@ -196,7 +197,7 @@ export default function ProfileSettings() {
               className={cn(errors.password && "border-destructive focus-visible:ring-destructive")}
             />
 
-            <PasswordRequirements password={password} inputId="register-password" />
+            <PasswordRequirements password={password} inputId="password" />
 
             {errors.password && <p className="text-sm text-destructive mt-1">{errors.password}</p>}
           </Field>

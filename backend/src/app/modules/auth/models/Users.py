@@ -10,6 +10,8 @@ if TYPE_CHECKING:
 
     from .APIKeys import APIKey
     from .BackupCodes import BackupCode
+    from ...campaigns.models.Campaigns import Campaign
+    from ...tasks.models.TaskAssignments import TaskAssignment
 
 USERNAME_PATTERN = r"^[a-zA-Z0-9_\-]+$"
 
@@ -57,8 +59,8 @@ class User(UserBase, table=True):
     # profile: Optional["UserProfile"] = Relationship(back_populates="user", sa_relationship_kwargs={"uselist": False})
     # consents: List["UserConsent"] = Relationship(back_populates="user")
     wallet: Optional["Wallet"] = Relationship(back_populates="user", sa_relationship_kwargs={"uselist": False})
-    # campaigns: List["Campaign"] = Relationship(back_populates="client")
-    # task_assignments: List["TaskAssignment"] = Relationship(back_populates="worker")
+    campaigns: list["Campaign"] = Relationship(back_populates="client")
+    task_assignments: list["TaskAssignment"] = Relationship(back_populates="worker")
 
 class UserCreate(UserBase):
     plain_password: str

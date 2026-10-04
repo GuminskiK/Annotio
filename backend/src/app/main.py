@@ -12,6 +12,8 @@ from src.app.core.rate_limiting import custom_rate_limit_handler, limiter
 from src.app.deps.dbs import db_deps, db_session, redis_client
 from src.app.modules.auth.routers import apikeys, auth, sessions, two_fa, users
 from src.app.modules.finance.routers import payment_operations, transactions, wallet
+from src.app.modules.campaigns.routers import campaigns
+from src.app.modules.tasks.routers import task_assignments, tasks
 
 setup_logging(json_logs=False, log_level="INFO")  # SET json_logs=True for Sentry/Loki!
 
@@ -23,6 +25,8 @@ async def lifespan(app: FastAPI):
     from sqlmodel import SQLModel, select
     from src.app.modules.auth.models.BackupCodes import BackupCode
     from src.app.modules.auth.models.Users import Role, User
+    from src.app.modules.tasks.models.ResourceFile import ResourceFile
+    from src.app.modules.tasks.models.TaskAssignments import TaskAssignment
     from src.app.modules.auth.utils.auth_utils import get_password_hash
     from src.app.modules.auth.utils.users_utils import get_blind_index
 
@@ -86,6 +90,9 @@ app.include_router(sessions.router)
 app.include_router(payment_operations.router)
 app.include_router(transactions.router)
 app.include_router(wallet.router)
+app.include_router(campaigns.router)
+app.include_router(tasks.router)
+app.include_router(task_assignments.router)
 
 origins = [
     "http://localhost.tiangolo.com",

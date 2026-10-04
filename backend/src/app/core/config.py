@@ -29,6 +29,13 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite+aiosqlite:///./test.db"
     REDIS_URL: str = "redis://localhost:6379/0"
 
+    MINIO_ENDPOINT: str = "minio:9000"
+    MINIO_ACCESS_KEY: str = "minioadmin"
+    MINIO_SECRET_KEY: str = "minioadmin"
+    MINIO_BUCKET: str = "annotio"
+    MINIO_SECURE: bool = False
+    MINIO_REGION: str = "us-east-1"
+
     APP_NAME: str = "Annotio"
 
     SESSION_COOKIE_NAME: str = "session_id"

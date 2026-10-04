@@ -1,7 +1,8 @@
 // src/components/ProtectedRoute.tsx
 import React from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import AuthenticatedShell from './AuthenticatedShell';
 
 export const ProtectedRoute: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -18,5 +19,5 @@ export const ProtectedRoute: React.FC = () => {
     return <Navigate to="/login" replace />;
   }
 
-  return <Outlet />;
+  return <AuthenticatedShell />;
 };
