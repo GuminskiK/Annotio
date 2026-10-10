@@ -14,6 +14,8 @@ from src.app.modules.tasks.models.TaskAssignments import (
     TaskAssignmentStatus,
 )
 from src.app.modules.tasks.models.Tasks import Task
+from src.app.modules.tasks.models.ResourceFile import ResourceFile
+from src.app.modules.tasks.models.TaskViews import TaskAssignmentView, TaskResourceView
 
 active_statuses = (
     TaskAssignmentStatus.RESERVED,
@@ -132,3 +134,50 @@ async def change_status(
     await session.refresh(assignment)
 
     return assignment
+
+
+async def fetch_task_assignment_view(
+    session: AsyncSession,
+    assignment_id: UUID,
+    user_id: UUID | None,
+    resource_id: UUID | None = None,
+):
+    conditions = [TaskAssignment.id == assignment_id]
+    if user_id is not None:
+        conditions.append(TaskAssignment.worker_id == user_id)
+    assignment_result = await session.exec(select(TaskAssignment).where(*conditions))
+    assignment = assignment_result.one_or_none()
+    if assignment is None:
+        raise TaskAssignmentNotFoundException()
+
+    task_result = await session.exec(select(Task).where(Task.id == assignment.task_id))
+    task = task_result.one_or_none()
+    if task is None:
+        raise TaskNotFoundException()
+
+    resources_result = await session.exec(
+        select(ResourceFile).where(ResourceFile.task_id == task.id)
+    )
+    resources = list(resources_result.all())
+    if resource_id is not None:
+        resource = next((item for item in resources if item.id == resource_id), None)
+        return resource.storage_path if resource else None
+
+    return TaskAssignmentView(
+        assignment_id=assignment.id,
+        task_id=task.id,
+        status=assignment.status,
+        expires_at=assignment.expires_at,
+        task_content_type=task.task_content_type,
+        task_answer_type=task.task_answer_type,
+        data_json=task.data_json,
+        resource_files=[
+            TaskResourceView(
+                id=resource.id,
+                original_name=resource.original_name,
+                url=f"/api/task_assignments/{assignment.id}/files/{resource.id}",
+            )
+            for resource in resources
+        ],
+        result_data_json=assignment.result_data_json,
+    )

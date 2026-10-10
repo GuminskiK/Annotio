@@ -42,6 +42,7 @@ class TaskAssignmentCreate(TaskAssignmentBase):
 
 class TaskAssignmentRead(TaskAssignmentBase):
     id: uuid.UUID
+    token: str
     reserved_at: datetime
     submitted_at: datetime | None
 

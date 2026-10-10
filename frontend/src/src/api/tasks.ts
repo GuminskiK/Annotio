@@ -23,6 +23,40 @@ export type TaskPage = {
   pages: number;
 };
 
+export type AssignmentView = {
+  assignment_id: string;
+  task_id: string;
+  status: string;
+  expires_at: string;
+  task_content_type: TaskContentType;
+  task_answer_type: TaskAnswerType;
+  data_json: { instruction?: string; options?: string[]; [key: string]: unknown };
+  resource_files: { id: string; original_name: string; url: string }[];
+  result_data_json?: { answer?: string | string[] };
+};
+
+export type Assignment = { id: string; token: string };
+
+export async function reserveTask(taskId: string): Promise<Assignment> {
+  const response = await api.post("/api/task_assignments/reserve", { task_id: taskId });
+  return response.data;
+}
+
+export async function getAssignmentView(assignmentId: string): Promise<AssignmentView> {
+  const response = await api.get(`/api/task_assignments/${assignmentId}/view`);
+  return response.data;
+}
+
+export async function submitTask(token: string, answer: string | string[]) {
+  const response = await api.post(`/api/task_assignments/submit/${token}`, { answer });
+  return response.data;
+}
+
+export async function reviewAssignment(assignmentId: string, action: "accept" | "reject") {
+  const response = await api.post(`/api/task_assignments/${action}/${assignmentId}`);
+  return response.data;
+}
+
 export type TaskFilters = {
   page: number;
   page_size: number;

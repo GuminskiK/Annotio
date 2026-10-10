@@ -15,7 +15,6 @@ export default function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(0);
-  const [total, setTotal] = useState(0);
   const [filtersOpen, setFiltersOpen] = useState(true);
   const [filters, setFilters] = useState({
     reward_min: "", reward_max: "", time_limit_min: "", time_limit_max: "",
@@ -35,7 +34,6 @@ export default function TasksPage() {
     });
     setTasks(result.items);
     setPages(result.pages);
-    setTotal(result.total);
   };
 
   useEffect(() => { loadTasks().catch(console.error); }, [page]);
@@ -68,7 +66,7 @@ export default function TasksPage() {
           <Button className="sm:col-span-2 lg:col-span-4" variant="outline" onClick={() => loadTasks().catch(console.error)}>Zastosuj filtry</Button>
         </CardContent>}
       </Card>
-      <Card><CardContent className="p-0"><div className="overflow-x-auto"><table className="w-full text-left text-sm"><thead className="border-b text-muted-foreground"><tr><th className="p-4">Task</th><th className="p-4">Reward</th><th className="p-4">Czas</th><th className="p-4">Treść</th><th className="p-4">Odpowiedź</th><th className="p-4">Campaign</th></tr></thead><tbody>{tasks.map((task) => <tr key={task.id} className="border-b last:border-0"><td className="p-4 font-mono text-xs">{task.id}</td><td className="p-4">{task.reward}</td><td className="p-4">{task.time_limit_minutes} min</td><td className="p-4">{task.task_content_type}</td><td className="p-4">{task.task_answer_type}</td><td className="p-4 font-mono text-xs">{task.campaign_id}</td></tr>)}{tasks.length === 0 && <tr><td className="p-8 text-center text-muted-foreground" colSpan={6}>Brak zadań dla wybranych filtrów.</td></tr>}</tbody></table></div></CardContent></Card>
+      <Card><CardContent className="p-0"><div className="overflow-x-auto"><table className="w-full text-left text-sm"><thead className="border-b text-muted-foreground"><tr><th className="p-4">Task</th><th className="p-4">Reward</th><th className="p-4">Czas</th><th className="p-4">Treść</th><th className="p-4">Odpowiedź</th><th className="p-4">Campaign</th><th className="p-4" /></tr></thead><tbody>{tasks.map((task) => <tr key={task.id} className="border-b last:border-0"><td className="p-4 font-mono text-xs">{task.id}</td><td className="p-4">{task.reward}</td><td className="p-4">{task.time_limit_minutes} min</td><td className="p-4">{task.task_content_type}</td><td className="p-4">{task.task_answer_type}</td><td className="p-4 font-mono text-xs">{task.campaign_id}</td><td className="p-4"><Button size="sm" onClick={() => navigate(`/tasks/${task.id}/execute`)}>Wykonaj</Button></td></tr>)}{tasks.length === 0 && <tr><td className="p-8 text-center text-muted-foreground" colSpan={7}>Brak zadań dla wybranych filtrów.</td></tr>}</tbody></table></div></CardContent></Card>
       <div className="flex items-center justify-between"><span className="text-sm text-muted-foreground">Strona {page} z {Math.max(pages, 1)}</span><div className="flex gap-2"><Button variant="outline" disabled={page <= 1} onClick={() => setPage((current) => current - 1)}>Poprzednia</Button><Button variant="outline" disabled={page >= pages} onClick={() => setPage((current) => current + 1)}>Następna</Button></div></div>
     </main>
   );

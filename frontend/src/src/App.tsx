@@ -22,6 +22,8 @@ import ActivateAccount from './pages/auth/ActivateAccount.tsx';
 import Register from './pages/auth/Register.tsx';
 import TasksPage from './pages/tasks/TasksPage.tsx';
 import TaskWizard from './pages/tasks/TaskWizard.tsx';
+import TaskExecutionPage from './pages/tasks/TaskExecutionPage.tsx';
+import TaskReviewPage from './pages/tasks/TaskReviewPage.tsx';
 import CampaignWizard from './pages/campaigns/CampaignWizard.tsx';
 const App = () => {
   return (
@@ -41,6 +43,8 @@ const App = () => {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/tasks" element={<TasksPage />} />
             <Route path="/tasks/new" element={<TaskWizard />} />
+            <Route path="/tasks/:taskId/execute" element={<TaskExecutionPage />} />
+            <Route path="/assignments/:assignmentId/review" element={<TaskReviewPage />} />
             <Route path="/campaigns/new" element={<CampaignWizard />} />
 
             <Route path="/admin" element={<AdminPanel />} />
