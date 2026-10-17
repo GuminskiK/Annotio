@@ -36,7 +36,8 @@ async def createSession(
 
         user_id=user.id,
         username=user.username,
-        role = user.role,
+        roles=user.roles,
+        is_superuser=user.is_superuser,
         is_totp_enabled=user.is_totp_enabled,
         remember_me=remember_me,
 

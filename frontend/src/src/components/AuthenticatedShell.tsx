@@ -10,13 +10,13 @@ export default function AuthenticatedShell() {
   const navigate = useNavigate();
   const location = useLocation();
   const { logout, user } = useAuth();
-  const normalizedRole = String(user?.role || "worker").toLowerCase();
-  const isAdmin = user?.is_superuser || normalizedRole === "admin";
+  const businessRoles = user?.roles?.map((role) => role.toLowerCase()) || ["worker"];
+  const isAdmin = user?.is_superuser === true;
   const availableModes: ViewMode[] = isAdmin
     ? ["worker", "auditor", "requester"]
-    : normalizedRole === "auditor"
+    : businessRoles.includes("auditor")
       ? ["auditor"]
-      : normalizedRole === "client" || normalizedRole === "requester"
+      : businessRoles.includes("client") || businessRoles.includes("requester")
         ? ["requester"]
         : ["worker"];
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
@@ -28,7 +28,7 @@ export default function AuthenticatedShell() {
     if (!availableModes.includes(viewMode)) {
       setViewMode(availableModes[0]);
     }
-  }, [normalizedRole, user?.is_superuser]);
+  }, [user?.is_superuser, user?.roles]);
 
   const changeView = (mode: ViewMode) => {
     setViewMode(mode);

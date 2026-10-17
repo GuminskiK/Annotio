@@ -14,7 +14,6 @@ from src.app.core.exceptions import (
 )
 from src.app.modules.auth.models.CurrentUserContext import CurrentUserContext
 from src.app.modules.auth.models.SessionData import SessionData
-from src.app.modules.auth.models.Users import Role
 
 api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
 
@@ -65,7 +64,8 @@ class AuthDependency:
 
                     user_id=session_data.user_id,
                     username=session_data.username,
-                    role=session_data.role,
+                    roles=session_data.roles,
+                    is_superuser=session_data.is_superuser,
                     is_totp_enabled=session_data.is_totp_enabled,
 
                     avatar_url=session_data.avatar_url
@@ -83,7 +83,8 @@ class AuthDependency:
 
                     user_id=key_data["id"],
                     username=key_data["username"],
-                    role=key_data["role"],
+                    roles=key_data["roles"],
+                    is_superuser=key_data.get("is_superuser", False),
                     is_totp_enabled=key_data["is_totp_enabled"],
 
                     avatar_url=key_data["avatar_url"]
@@ -95,7 +96,7 @@ class AuthDependency:
         async def _get_current_admin_user(
             current_user: CurrentUserContext = Depends(self.get_current_session)
         ) -> CurrentUserContext:
-            if not current_user.role == Role.ADMIN:
+            if not current_user.is_superuser:
                 raise AdminNeededException()
             return current_user
         return _get_current_admin_user

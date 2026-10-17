@@ -8,6 +8,7 @@ from src.app.modules.auth.models.CurrentUserContext import CurrentUserContext
 from src.app.modules.auth.models.Users import (
     NewPasswordModel,
     UserCreate,
+    UserAccessUpdate,
     UserRead,
     UserUpdate,
 )
@@ -21,6 +22,7 @@ from src.app.modules.auth.services.users_service import (
     remove_user,
     send_change_password_mail,
     update_user,
+    update_user_access,
     upload_avatar,
 )
 from src.app.core.storage import object_storage
@@ -44,6 +46,26 @@ async def get_all_users(session: db_session, admin: AdminUser):
 @router.get("/me", response_model=CurrentUserContext)
 async def get_current_user( current_user: CurrentUser):
     return current_user
+
+
+@router.post("/forgot_password")
+async def forgot_password(
+    session: db_session,
+    background_tasks: BackgroundTasks,
+    email: str = Body(..., embed=True),
+):
+    await send_change_password_mail(session, email, background_tasks)
+    return {"message": "If an account with that email exists, a password reset link has been sent."}
+
+
+@router.patch("/change_password/{password_change_token}")
+async def patch_password(
+    session: db_session,
+    password_change_token: str,
+    payload: NewPasswordModel,
+):
+    await change_password(session, password_change_token, payload.plain_password)
+    return {"message": "Password has been successfully changed."}
 
 @router.get("/{user_id}", response_model=UserRead)
 async def get_user(session: db_session, user_id: UUID, admin: AdminUser):
@@ -71,6 +93,28 @@ async def patch_user_admin(
 ):
 
     return await update_user(redis, session, user, user_id)
+
+
+@router.patch("/{user_id}/roles", response_model=UserRead)
+async def add_user_role(
+    redis: redis_client,
+    session: db_session,
+    user_id: UUID,
+    access: UserAccessUpdate,
+    admin: AdminUser,
+):
+    return await update_user_access(redis, session, user_id, access)
+
+
+@router.patch("/me/access", response_model=UserRead)
+async def patch_user_access(
+    redis: redis_client,
+    session: db_session,
+    current_user: CurrentUser,
+    access: UserAccessUpdate,
+    admin: AdminUser,
+):
+    return await update_user_access(redis, session, current_user.user_id, access)
 
 @router.delete("/me", response_model=UserRead)
 async def delete_user(session: db_session, user: CurrentUser):
@@ -119,16 +163,3 @@ async def patch_change_user_role(
 async def activate_account(session: db_session, activate_token: str):
 
     return await change_account_status(session, activate_token)
-
-@router.post("/forgot_password")
-async def forgot_password(session: db_session, background_tasks: BackgroundTasks, email: str = Body(..., embed=True)):
-
-    await send_change_password_mail(session, email, background_tasks)
-
-    return {"message": "If an account with that email exists, a password reset link has been sent."}
-
-@router.patch("/change_password/{password_change_token}")
-async def patch_password(session: db_session, password_change_token: str, payload: NewPasswordModel):
-
-    await change_password(session, password_change_token, payload.plain_password)
-    return {"message": "Password has been successfully changed."}

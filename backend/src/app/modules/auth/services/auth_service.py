@@ -5,8 +5,7 @@ from uuid import UUID
 
 import pyotp
 import redis.asyncio as redis
-from fastapi import Depends, Request, Response, status
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import Request, Response, status
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.app.core.config import settings
 from src.app.core.exceptions import (
@@ -28,24 +27,29 @@ async def login(
     response: Response,
     redis: redis.Redis,
     session: AsyncSession,
-    form_data: OAuth2PasswordRequestForm = Depends(),
+    username: str | None,
+    password: str | None,
     remember_me: bool = False,
-):
+) -> dict:
 
     await asyncio.sleep(1)
 
-    user = await get_user_by_username(session, form_data.username)
-    if not user:
-        verify_password(form_data.password, settings.DUMMY_HASH)
-        logger.warning("invalid_user_login_attempt", username=form_data.username)
+    if not username or not password:
+        logger.warning("missing_credentials_attempt")
         raise InvalidCredentialsException()
 
-    if not verify_password(form_data.password, user.hashed_password):
-        logger.warning("invalid_credentials_attempt", username=form_data.username)
+    user = await get_user_by_username(session, username)
+    if not user:
+        verify_password(password, settings.DUMMY_HASH)
+        logger.warning("invalid_user_login_attempt", username=username)
+        raise InvalidCredentialsException()
+
+    if not verify_password(password, user.hashed_password):
+        logger.warning("invalid_credentials_attempt", username=username)
         raise InvalidCredentialsException()
 
     if not user.is_activated:
-        logger.warning("inactive_user_login_attempt", username=form_data.username)
+        logger.warning("inactive_user_login_attempt", username=username)
         raise InvalidCredentialsException(detail="Please activate your account")
 
     if user.is_totp_enabled:
@@ -143,4 +147,4 @@ async def logout(request: Request, response: Response, redis: redis.Redis):
 
     logger.info("user_logged_out", session_id=str(session_id))
 
-    return {"message": "Wylogowano pomyślnie, sesja zniszczona"}
+    return {"message": "Logged out successfully!"}

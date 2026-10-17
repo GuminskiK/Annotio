@@ -1,6 +1,13 @@
 import { api } from '../axiosClient';
 import type { UserReadData, User, UserCreateData, UserUpdateData } from './types';
 
+export type BusinessRole = 'client' | 'worker' | 'auditor';
+
+export const addUserRole = async (userId: string, role: BusinessRole): Promise<UserReadData> => {
+    const response = await api.patch(`/api/users/${userId}/roles`, { role });
+    return response.data;
+};
+
 
 export const createUser = async (userData: UserCreateData): Promise<any> => {
     const response = await api.post('/api/users', userData, {

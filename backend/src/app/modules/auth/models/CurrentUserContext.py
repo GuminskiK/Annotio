@@ -10,7 +10,8 @@ class CurrentUserContext(SQLModel):
 
     user_id: UUID
     username: str
-    role: Role
+    roles: list[Role] = [Role.WORKER]
+    is_superuser: bool = False
     is_totp_enabled: bool = False
 
     avatar_url: str | None = None

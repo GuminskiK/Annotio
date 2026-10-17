@@ -1,6 +1,6 @@
 export interface User{
     username: string;
-  role?: "admin" | "client" | "worker" | "auditor" | string;
+  roles?: ("client" | "worker" | "auditor" | string)[];
     is_superuser: boolean;
     is_totp_enabled: boolean;
     avatar_url?: string;

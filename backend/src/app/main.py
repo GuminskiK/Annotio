@@ -45,7 +45,8 @@ async def lifespan(app: FastAPI):
                     json.dumps({
                         "id": str(api_key.user_id),
                         "username": user.username,
-                        "role": str(user.role),
+                        "roles": [getattr(role, "value", role) for role in user.roles],
+                        "is_superuser": user.is_superuser,
                     }),
                 )
 
@@ -59,7 +60,7 @@ async def lifespan(app: FastAPI):
                 username=settings.ADMIN_USERNAME,
                 email=admin_email,
 
-                role=Role.ADMIN,
+                is_superuser=True,
                 is_activated=True,
                 hashed_password=get_password_hash(settings.ADMIN_PASSWORD),
                 email_blind_index=get_blind_index(admin_email),

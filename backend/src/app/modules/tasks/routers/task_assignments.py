@@ -4,6 +4,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import Response
 from src.app.deps.dbs import db_session
 from src.app.deps.users import CurrentUser
+from src.app.modules.auth.models.Users import Role
 from src.app.modules.tasks.models.TaskAssignments import (
     TaskAssignmentCreate,
     TaskAssignmentRead,
@@ -46,15 +47,13 @@ async def post_reserve_task(session: db_session, user: CurrentUser, request: Tas
 
 @router.get("/{assignment_id}/view", response_model=TaskAssignmentView)
 async def get_assignment_view(session: db_session, user: CurrentUser, assignment_id: UUID):
-    role = getattr(user.role, "value", str(user.role)).lower()
-    access_user_id = None if role in {"admin", "auditor"} else user.user_id
+    access_user_id = None if user.is_superuser or Role.AUDITOR in user.roles else user.user_id
     return await fetch_task_assignment_view(session, assignment_id, access_user_id)
 
 
 @router.get("/{assignment_id}/files/{resource_id}")
 async def get_assignment_file(session: db_session, user: CurrentUser, assignment_id: UUID, resource_id: UUID):
-    role = getattr(user.role, "value", str(user.role)).lower()
-    access_user_id = None if role in {"admin", "auditor"} else user.user_id
+    access_user_id = None if user.is_superuser or Role.AUDITOR in user.roles else user.user_id
     resource = await fetch_task_assignment_view(session, assignment_id, access_user_id, resource_id=resource_id)
     if not resource:
         raise HTTPException(status_code=404, detail="Resource not found")

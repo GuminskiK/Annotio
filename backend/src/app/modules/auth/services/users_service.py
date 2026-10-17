@@ -21,7 +21,7 @@ from src.app.core.logger import get_logger
 from src.app.deps.dbs import db_session
 from src.app.modules.auth.models.CurrentUserContext import CurrentUserContext
 from src.app.modules.auth.models.Tokens import TokenTypes
-from src.app.modules.auth.models.Users import User, UserCreate, UserUpdate
+from src.app.modules.auth.models.Users import User, UserAccessUpdate, UserCreate, UserUpdate
 from src.app.modules.auth.utils.auth_utils import get_password_hash
 from src.app.modules.finance.models.Wallet import Wallet
 from src.app.modules.auth.utils.jwt import create_token, decode_token
@@ -212,11 +212,40 @@ async def change_user_role(
 
     session_ids = await getSessionsByUserId(redis, user.id)
     for id in session_ids:
-        await updateSession(redis, id, {"is_superuser": user.role == "admin"})
+        await updateSession(redis, id, {"is_superuser": user.is_superuser})
 
-    logger.info("user_role_changed_succesfully", user_id=user.id, new_role="admin" if is_superuser else "user")
+    logger.info("user_superuser_status_changed_succesfully", user_id=user.id, is_superuser=is_superuser)
 
-    return {"message": "User role changed successfully", "new_role": "admin" if is_superuser else "user"}
+    return {"message": "User superuser status changed successfully", "is_superuser": is_superuser}
+
+
+async def update_user_access(
+    redis: redis.Redis,
+    session: AsyncSession,
+    user_id: UUID,
+    access_update: UserAccessUpdate,
+) -> User:
+    user = await get_user_by_id(session, user_id)
+    if not user:
+        raise UserNotFoundException()
+
+    if access_update.role in user.roles:
+        return user
+
+    user.roles = [*user.roles, access_update.role]
+
+    session.add(user)
+    await session.commit()
+    await session.refresh(user)
+
+    for session_id in await getSessionsByUserId(redis, user.id):
+        await updateSession(
+            redis,
+            session_id,
+            {"roles": user.roles},
+        )
+
+    return user
     
 
 async def remove_user(session: AsyncSession, user_id: UUID):
@@ -253,7 +282,7 @@ async def change_account_status(session: db_session, activate_token:str):
     if not user_id:
         logger.warning("token_missing_user_id")
         raise InvalidTokenException()
-    user = await get_user_by_id(session, user_id)
+    user = await get_user_by_id(session, UUID(user_id))
     if not user:
         logger.warning("user_not_found")
         raise UserNotFoundException()
@@ -272,7 +301,8 @@ async def send_change_password_mail(session: db_session, email: str, background_
     user = await get_user_by_email(session, email)
     
     if not user:
-        raise UserNotFoundException()
+        logger.info("password_change_requested_for_unknown_email", email=email)
+        return {"message": "If an account with that email exists, a password reset link has been sent."}
 
     token = create_token(
         user.id,
@@ -310,7 +340,7 @@ async def change_password(session: db_session, password_change_token: str, plain
     if not user_id:
         logger.warning("token_missing_user_id")
         raise InvalidTokenException()
-    user = await get_user_by_id(session, user_id)
+    user = await get_user_by_id(session, UUID(user_id))
     if not user:
         logger.warning("user_not_found")
         raise UserNotFoundException()

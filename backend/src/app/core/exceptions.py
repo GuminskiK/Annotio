@@ -24,6 +24,10 @@ class UnauthorizedException(AppBaseException):
 class InternalServerErrorException(AppBaseException):
     def __init__(self, detail: str = "Internal server error"):
         super().__init__(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail)
+
+class ConflictException(AppBaseException):
+    def __init__(self, detail: str = "Conflict"):
+        super().__init__(status_code=status.HTTP_409_CONFLICT, detail=detail)
 ###########################
 
 class SessionNotFoundException(ResourceNotFoundException):
@@ -105,14 +109,6 @@ class WrongTokenTypeException(BadRequestException):
     def __init__(self, detail: str = "Bad Request"):
         super().__init__(detail="Wrong token type")
 
-class UsernameTakenException(BadRequestException):
-    def __init__(self, detail: str = "Bad Request"):
-        super().__init__(detail="Username taken")
-
-class EmailTakenException(BadRequestException):
-    def __init__(self, detail: str = "Bad Request"):
-        super().__init__(detail="Email taken")
-
 class WrongFileTypeException(BadRequestException):
     def __init__(self, detail: str = "Bad Request"):
         super().__init__(detail="Wrong file type")
@@ -175,3 +171,12 @@ class FailedToSentActivationEmailException(InternalServerErrorException):
 class FailedToSentPasswordResetEmailException(InternalServerErrorException):
     def __init__(self, detail: str = "Internal server error"):
         super().__init__(detail="Failed to sent password reset email")
+
+#####
+class UsernameTakenException(ConflictException):
+    def __init__(self, detail: str = "Bad Request"):
+        super().__init__(detail="Username taken")
+
+class EmailTakenException(ConflictException):
+    def __init__(self, detail: str = "Bad Request"):
+        super().__init__(detail="Email taken")

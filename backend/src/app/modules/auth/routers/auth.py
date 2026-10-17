@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Body, Depends, Form, Request, Response
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import APIRouter, Body, Form, Request, Response
+from src.app.core.exceptions import InvalidCredentialsException
 from src.app.deps.dbs import db_session, redis_client
 from src.app.modules.auth.services.auth_service import login, login_mfa, logout
 
@@ -11,7 +11,8 @@ async def login_route(
     response: Response,
     redis: redis_client,
     session: db_session,
-    form_data: OAuth2PasswordRequestForm = Depends(),
+    username: str | None = Form(None),
+    password: str | None = Form(None),
     remember_me: bool = Form(False),
     ):
     
@@ -20,7 +21,8 @@ async def login_route(
         response=response,
         redis=redis,
         session=session,
-        form_data=form_data,
+        username=username,
+        password=password,
         remember_me=remember_me,
     )
     

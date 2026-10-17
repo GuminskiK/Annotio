@@ -13,7 +13,8 @@ class SessionData(BaseModel):
 
     user_id: UUID
     username: str
-    role: Role
+    roles: list[Role] = [Role.WORKER]
+    is_superuser: bool = False
     is_totp_enabled: bool = False
     remember_me: bool = False
     # is_banned: bool = False

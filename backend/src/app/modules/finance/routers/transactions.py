@@ -3,7 +3,6 @@ from uuid import UUID
 from fastapi import APIRouter
 from src.app.deps.dbs import db_session
 from src.app.deps.users import AdminUser, CurrentUser
-from src.app.modules.auth.models.Users import Role
 from src.app.modules.finance.models.Transaction import TransactionRead
 from src.app.modules.finance.services.transaction_crud import (
     fetch_all_transactions_admin,
@@ -23,7 +22,7 @@ async def get_transactions(session: db_session, user: CurrentUser, admin: AdminU
 @router.get("/{transaction_id}", response_model=TransactionRead)
 async def get_transaction(session: db_session, user: CurrentUser, transaction_id: UUID):
 
-    if user.role == Role.ADMIN:
+    if user.is_superuser:
         return await fetch_transaction_by_id_admin(session, transaction_id)
 
     return await fetch_transaction_by_id(session, transaction_id, user.user_id)
@@ -31,7 +30,7 @@ async def get_transaction(session: db_session, user: CurrentUser, transaction_id
 @router.get("/user/{user_id}", response_model=list[TransactionRead])
 async def get_transaction_user_transactions(session: db_session, user: CurrentUser, user_id: UUID):
 
-    if user.role != Role.ADMIN:
+    if not user.is_superuser:
         user_id = user.user_id
 
     return await fetch_user_transactions(session, user_id)

@@ -3,6 +3,8 @@ from enum import Enum
 from typing import TYPE_CHECKING, Optional
 
 from pydantic import EmailStr, field_validator
+from sqlalchemy import Column
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
@@ -30,8 +32,7 @@ def validate_password_strength(v: str) -> str:
         raise ValueError("Must contain at least one digit")
     return v
 
-class Role (Enum):
-    ADMIN = "admin"
+class Role (str, Enum):
     CLIENT = "client"
     WORKER = "worker"
     AUDITOR = "auditor"
@@ -42,9 +43,10 @@ class UserBase(SQLModel):
 
 class User(UserBase, table=True):
     id: uuid.UUID = Field(default_factory= uuid.uuid4, primary_key=True)
-    role: Role = Field(default = Role.WORKER)
+    roles: list[Role] = Field(default_factory=lambda: [Role.WORKER], sa_column=Column(JSONB))
     is_activated: bool = Field(default = False)
     is_blocked: bool = Field(default=False)
+    is_superuser: bool = Field(default=False)
 
     hashed_password: str = Field()
     email_blind_index: str
@@ -72,7 +74,8 @@ class UserCreate(UserBase):
 
 class UserRead(UserBase):
     id: uuid.UUID
-    role: Role
+    roles: list[Role]
+    is_superuser: bool
     is_activated: bool
     is_totp_enabled: bool
 
@@ -88,6 +91,10 @@ class UserUpdate(SQLModel):
         if v is not None:
             return validate_password_strength(v)
         return v
+
+
+class UserAccessUpdate(SQLModel):
+    role: Role
 
 class NewPasswordModel(SQLModel):
     plain_password: str
